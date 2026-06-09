@@ -325,16 +325,19 @@ model ProductSiteAccessPoint {
 }
 
 model ScanEvent {
-  id                String          @id @default(cuid())
-  travelerId        String
-  passId            String?
-  bookingId         String?
-  siteAccessPointId String
-  status            ScanEventStatus @default(CREATED)
-  scannedAt         DateTime        @default(now())
-  rejectionReason   String?
-  metadata          Json?
-  createdAt         DateTime        @default(now())
+  id                      String              @id @default(cuid())
+  travelerId              String
+  passId                  String?
+  bookingId               String?
+  siteAccessPointId       String
+  status                  ScanEventStatus     @default(CREATED)
+  scannedAt               DateTime            @default(now())
+  rejectionReason         String?
+  metadata                Json?
+  createdAt               DateTime            @default(now())
+  activityProofStatus     ActivityProofStatus @default(DRAFT)
+  activityProofRecordedAt DateTime?
+  activityProofMetadata   Json?
 
   traveler        TravelerProfile @relation(fields: [travelerId], references: [id])
   pass            TravelerPass?   @relation(fields: [passId], references: [id])
@@ -344,17 +347,24 @@ model ScanEvent {
 }
 
 model VisitStamp {
-  id                String           @id @default(cuid())
-  travelerId        String
-  passId            String
-  bookingId         String?
-  scanEventId       String?          @unique
-  siteAccessPointId String
-  status            VisitStampStatus @default(NOT_ELIGIBLE)
-  issuedAt          DateTime?
-  revokedAt         DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                 String                @id @default(cuid())
+  travelerId         String
+  passId             String
+  bookingId          String?
+  scanEventId        String?               @unique
+  siteAccessPointId  String
+  status             VisitStampStatus      @default(NOT_ELIGIBLE)
+  issuedAt           DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  stampStatus        VisitStampProofStatus @default(DRAFT)
+  sourceType         VisitStampSourceType  @default(SITE_ACCESS_SCAN)
+  proofRecordedAt    DateTime?
+  proofVerifiedAt    DateTime?
+  proofRevokedAt     DateTime?
+  proofReferenceHash String?
+  proofMetadata      Json?
 
   traveler        TravelerProfile @relation(fields: [travelerId], references: [id])
   pass            TravelerPass    @relation(fields: [passId], references: [id])
@@ -934,4 +944,106 @@ model TravelerIdentityClaim {
   @@index([claimType])
   @@index([status])
   @@index([verifiedAt])
+}
+
+enum VisitStampSourceType {
+  SITE_ACCESS_SCAN
+  BOOKING_COMPLETION
+  STAFF_VALIDATION
+  MANUAL_GOVERNANCE_REVIEW
+  SYSTEM_EVENT
+  PARTNER_EVENT
+}
+
+enum ActivityProofStatus {
+  DRAFT
+  RECORDED
+  VERIFIED
+  REJECTED
+  REVOKED
+  ARCHIVED
+}
+
+enum ActivityProofType {
+  SITE_ACCESS_SCAN
+  VISIT_STAMP
+  BOOKING_ATTENDANCE
+  TRAIL_PROGRESS
+  STAFF_VALIDATION
+  GOVERNANCE_REVIEW
+}
+
+enum ActivityProofEvidenceType {
+  QR_SCAN
+  STAFF_CONFIRMATION
+  SYSTEM_EVENT
+  PHOTO_REFERENCE
+  DOCUMENT_REFERENCE
+  EXTERNAL_REFERENCE
+}
+
+model ActivityProofRecord {
+  id                  String              @id @default(cuid())
+  proofCode           String              @unique
+  travelerId          String?
+  passId              String?
+  siteAccessPointId   String?
+  scanEventId         String?
+  visitStampId        String?
+  bookingId           String?
+  proofType           ActivityProofType
+  status              ActivityProofStatus @default(DRAFT)
+  occurredAt          DateTime?
+  verifiedAt          DateTime?
+  verifiedByUserId    String?
+  sourceReferenceHash String?
+  governanceNotes     String?
+  metadata            Json?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  evidence ActivityProofEvidence[]
+
+  @@index([travelerId])
+  @@index([passId])
+  @@index([siteAccessPointId])
+  @@index([scanEventId])
+  @@index([visitStampId])
+  @@index([bookingId])
+  @@index([proofType])
+  @@index([status])
+  @@index([occurredAt])
+  @@index([verifiedAt])
+}
+
+model ActivityProofEvidence {
+  id                    String                    @id @default(cuid())
+  proofRecordId         String
+  evidenceCode          String                    @unique
+  evidenceType          ActivityProofEvidenceType
+  status                ActivityProofStatus       @default(DRAFT)
+  evidenceReferenceHash String?
+  capturedAt            DateTime?
+  verifiedAt            DateTime?
+  verifiedByUserId      String?
+  metadata              Json?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  proofRecord ActivityProofRecord @relation(fields: [proofRecordId], references: [id])
+
+  @@index([proofRecordId])
+  @@index([evidenceType])
+  @@index([status])
+  @@index([capturedAt])
+  @@index([verifiedAt])
+}
+
+enum VisitStampProofStatus {
+  DRAFT
+  EARNED
+  VERIFIED
+  REVOKED
+  EXPIRED
+  ARCHIVED
 }

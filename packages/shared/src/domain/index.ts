@@ -6,3 +6,4 @@ export * from "./registry";
 export * from "./operator-registry";
 export * from "./site-access";
 export * from "./traveler-pass-identity";
+export * from "./activity-proof";
