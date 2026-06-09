@@ -271,14 +271,32 @@ model Booking {
 }
 
 model SiteAccessPoint {
-  id            String                @id @default(cuid())
-  publicCode    String                @unique
-  name          String
-  status        SiteAccessPointStatus @default(DRAFT)
-  locationLabel String?
-  actionContext String
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
+  id                 String                       @id @default(cuid())
+  publicCode         String                       @unique
+  name               String
+  status             SiteAccessPointStatus        @default(DRAFT)
+  locationLabel      String?
+  actionContext      String
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+  pointType          SiteAccessPointType          @default(OTHER)
+  ownerType          SiteAccessOwnerType          @default(LGU)
+  ownerName          String?
+  municipalityId     String?
+  barangayId         String?
+  destinationSiteId  String?
+  operatorRegistryId String?
+  publicSummary      String?
+  internalNotes      String?
+  latitude           Decimal?                     @db.Decimal(10, 7)
+  longitude          Decimal?                     @db.Decimal(10, 7)
+  metadata           Json?
+  municipality       Municipality?                @relation(fields: [municipalityId], references: [id])
+  barangay           Barangay?                    @relation(fields: [barangayId], references: [id])
+  destinationSite    DestinationSite?             @relation(fields: [destinationSiteId], references: [id])
+  operatorRegistry   LocalOperatorRegistryRecord? @relation(fields: [operatorRegistryId], references: [id])
+  qrDefinitions      SiteAccessQrDefinition[]
+  feeRules           SiteAccessFeeRule[]
 
   productLinks ProductSiteAccessPoint[]
   scanEvents   ScanEvent[]
@@ -493,6 +511,7 @@ model Municipality {
 
   barangays        Barangay[]
   destinationSites DestinationSite[]
+  siteAccessPoints SiteAccessPoint[]
 
   @@index([status])
   @@index([governanceOwnerType])
@@ -512,6 +531,7 @@ model Barangay {
 
   municipality     Municipality      @relation(fields: [municipalityId], references: [id])
   destinationSites DestinationSite[]
+  siteAccessPoints SiteAccessPoint[]
 
   @@unique([municipalityId, code])
   @@index([municipalityId])
@@ -537,8 +557,9 @@ model DestinationSite {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
-  municipality Municipality @relation(fields: [municipalityId], references: [id])
-  barangay     Barangay?    @relation(fields: [barangayId], references: [id])
+  municipality     Municipality      @relation(fields: [municipalityId], references: [id])
+  barangay         Barangay?         @relation(fields: [barangayId], references: [id])
+  siteAccessPoints SiteAccessPoint[]
 
   @@unique([municipalityId, code])
   @@index([municipalityId])
@@ -643,6 +664,7 @@ model LocalOperatorRegistryRecord {
 
   capabilities      LocalOperatorCapabilityRecord[]
   complianceRecords LocalOperatorComplianceRecord[]
+  siteAccessPoints  SiteAccessPoint[]
 
   @@index([providerType])
   @@index([verificationStatus])
@@ -691,5 +713,125 @@ model LocalOperatorComplianceRecord {
 
   @@index([operatorRegistryId])
   @@index([severity])
+  @@index([status])
+}
+
+enum SiteAccessPointType {
+  LGU_SITE
+  TOURISM_SITE
+  PORT_TERMINAL
+  BARANGAY_ACCESS_POINT
+  ACCOMMODATION_CHECK_IN
+  OPERATOR_CHECK_IN
+  MERCHANT_CHECK_IN
+  TRANSPORT_CHECK_IN
+  TRAIL_STOP
+  EVENT_GATE
+  OTHER
+}
+
+enum SiteAccessOwnerType {
+  LGU
+  PROVINCIAL_TOURISM
+  DOT
+  BARANGAY
+  COMMUNITY
+  PRIVATE_PARTNER
+  LOCAL_OPERATOR
+  ACCOMMODATION
+  MERCHANT
+  MIXED
+}
+
+enum SiteAccessQrPurpose {
+  SITE_CONTEXT
+  ACCESS_CHECK_IN
+  PAYMENT_CONTEXT
+  STAMP_VALIDATION
+  ARRIVAL_LOG
+  OPERATOR_SERVICE_CHECK_IN
+  ACCOMMODATION_CHECK_IN
+  MERCHANT_CHECK_IN
+  EVENT_ENTRY
+}
+
+enum SiteAccessFeeRuleType {
+  NONE
+  STANDARD
+  RESIDENT_RATE
+  DISCOUNTED
+  EXEMPT
+  SENIOR_RATE
+  CHILD_RATE
+  CUSTOM
+}
+
+enum SiteAccessFeeCollectionMode {
+  NOT_COLLECTED
+  CASH_ON_SITE
+  ONLINE_PREPAY
+  COUNTER_PAYMENT
+  PARTNER_COLLECTED
+  GOVERNMENT_COLLECTED
+  MIXED
+}
+
+enum SiteAccessEligibilityType {
+  PUBLIC
+  RESIDENT
+  NON_RESIDENT
+  SENIOR
+  CHILD
+  STUDENT
+  PWD
+  LGU_STAFF
+  OPERATOR_STAFF
+  APPROVED_PARTNER
+  CUSTOM
+}
+
+model SiteAccessQrDefinition {
+  id                String               @id @default(cuid())
+  siteAccessPointId String
+  purpose           SiteAccessQrPurpose
+  status            RegistryRecordStatus @default(DRAFT)
+  label             String
+  qrSlug            String               @unique
+  description       String?
+  validFrom         DateTime?
+  validUntil        DateTime?
+  metadata          Json?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  siteAccessPoint SiteAccessPoint @relation(fields: [siteAccessPointId], references: [id])
+
+  @@index([siteAccessPointId])
+  @@index([purpose])
+  @@index([status])
+}
+
+model SiteAccessFeeRule {
+  id                   String                      @id @default(cuid())
+  siteAccessPointId    String
+  ruleType             SiteAccessFeeRuleType
+  eligibilityType      SiteAccessEligibilityType   @default(PUBLIC)
+  collectionMode       SiteAccessFeeCollectionMode @default(NOT_COLLECTED)
+  status               RegistryRecordStatus        @default(DRAFT)
+  label                String
+  amount               Decimal?                    @db.Decimal(12, 2)
+  currency             String                      @default("PHP")
+  requiresVerification Boolean                     @default(false)
+  notes                String?
+  metadata             Json?
+  createdAt            DateTime                    @default(now())
+  updatedAt            DateTime                    @updatedAt
+
+  siteAccessPoint SiteAccessPoint @relation(fields: [siteAccessPointId], references: [id])
+
+  @@index([siteAccessPointId])
+  @@index([ruleType])
+  @@index([eligibilityType])
+  @@index([collectionMode])
   @@index([status])
 }
