@@ -9,7 +9,7 @@ Standalone App Stack Decision: Backend, Frontend, Database, Auth, Deployment
 
 Dinagat Pass remains a standalone app and standalone repository.
 
-One Siargao Pass is architectural reference only.
+One Siargao Pass is architectural reference only. - reference-only anti-drift boundary; not a parent app, not shared runtime, and not a source of Dinagat Pass authority.
 
 This decision does not scaffold frontend pages, backend modules, database schema, auth implementation, or deployment files.
 

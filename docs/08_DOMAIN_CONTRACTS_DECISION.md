@@ -1,4 +1,4 @@
-# 08 DOMAIN CONTRACTS DECISION
+﻿# 08 DOMAIN CONTRACTS DECISION
 
 Lane:
 
@@ -15,7 +15,7 @@ This prevents schema/backend/frontend drift.
 
 Dinagat Pass is standalone.
 
-One Siargao Pass is architectural reference only.
+One Siargao Pass is architectural reference only. - reference-only anti-drift boundary; not a parent app, not shared runtime, and not a source of Dinagat Pass authority.
 
 QR / Scan Event is operational truth.
 

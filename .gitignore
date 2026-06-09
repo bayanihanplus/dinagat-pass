@@ -36,3 +36,6 @@ coverage/
 # Local verification scratch folders
 .dinagat-verify/
 **/.dinagat-verify/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

@@ -4,12 +4,12 @@
 
 Dinagat Pass is a standalone app and standalone repository.
 
-It must not be built as an OSP module, OSP extension, OSP sub-app, Nomad Academy module, or CABrainworks module.
+It must not be built as an OSP module, OSP extension, OSP sub-app, Nomad Academy module, or CABrainworks module. - reference-only anti-drift boundary; not a parent app, not shared runtime, and not a source of Dinagat Pass authority.
 
 Correct relationship:
 
 - Dinagat Pass = separate product
-- One Siargao Pass = architectural reference only
+- One Siargao Pass = architectural reference only - reference-only anti-drift boundary; not a parent app, not shared runtime, and not a source of Dinagat Pass authority.
 
 ## Product thesis
 
