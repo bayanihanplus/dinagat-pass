@@ -146,236 +146,236 @@ enum AuditActionType {
 }
 
 model User {
-  id             String      @id @default(cuid())
-  email          String      @unique
-  displayName    String?
-  role           UserRole
-  isActive       Boolean     @default(true)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id          String   @id @default(cuid())
+  email       String   @unique
+  displayName String?
+  role        UserRole
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   travelerProfile TravelerProfile?
-  operatorOwner    Operator[]   @relation("OperatorOwner")
-  auditEvents      AuditEvent[] @relation("AuditActor")
-  authCredential AuthCredential?
+  operatorOwner   Operator[]       @relation("OperatorOwner")
+  auditEvents     AuditEvent[]     @relation("AuditActor")
+  authCredential  AuthCredential?
   authSessions    AuthSession[]
 }
 
 model TravelerProfile {
-  id             String      @id @default(cuid())
-  userId         String      @unique
-  publicCode     String      @unique
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  publicCode String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user           User        @relation(fields: [userId], references: [id])
-  passes         TravelerPass[]
-  bookings       Booking[]
-  scanEvents     ScanEvent[]
-  visitStamps    VisitStamp[]
+  user        User           @relation(fields: [userId], references: [id])
+  passes      TravelerPass[]
+  bookings    Booking[]
+  scanEvents  ScanEvent[]
+  visitStamps VisitStamp[]
 }
 
 model TravelerPass {
-  id             String      @id @default(cuid())
-  travelerId     String
-  qrStatus       QrStatus    @default(NOT_ISSUED)
-  qrPublicCode   String      @unique
-  issuedAt       DateTime?
-  activatedAt    DateTime?
-  expiresAt      DateTime?
-  revokedAt      DateTime?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id           String    @id @default(cuid())
+  travelerId   String
+  qrStatus     QrStatus  @default(NOT_ISSUED)
+  qrPublicCode String    @unique
+  issuedAt     DateTime?
+  activatedAt  DateTime?
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  traveler       TravelerProfile @relation(fields: [travelerId], references: [id])
-  scanEvents     ScanEvent[]
-  visitStamps    VisitStamp[]
-  bookings       Booking[]
+  traveler    TravelerProfile @relation(fields: [travelerId], references: [id])
+  scanEvents  ScanEvent[]
+  visitStamps VisitStamp[]
+  bookings    Booking[]
 }
 
 model Operator {
-  id              String                  @id @default(cuid())
-  ownerUserId      String
-  publicCode       String                  @unique
-  displayName      String
-  approvalStatus   OperatorApprovalStatus  @default(DRAFT)
-  isActive         Boolean                 @default(false)
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @updatedAt
+  id             String                 @id @default(cuid())
+  ownerUserId    String
+  publicCode     String                 @unique
+  displayName    String
+  approvalStatus OperatorApprovalStatus @default(DRAFT)
+  isActive       Boolean                @default(false)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
 
-  owner            User                    @relation("OperatorOwner", fields: [ownerUserId], references: [id])
-  capabilities     OperatorCapability[]
-  products         ExperienceProduct[]
-  bookings         Booking[]
-  exposureRecords  MarketplaceExposure[]
+  owner           User                  @relation("OperatorOwner", fields: [ownerUserId], references: [id])
+  capabilities    OperatorCapability[]
+  products        ExperienceProduct[]
+  bookings        Booking[]
+  exposureRecords MarketplaceExposure[]
 }
 
 model OperatorCapability {
-  id              String                    @id @default(cuid())
-  operatorId      String
-  familyCode      ExperienceFamilyCode
-  status          OperatorCapabilityStatus  @default(NOT_REQUESTED)
-  approvedAt      DateTime?
-  suspendedAt     DateTime?
-  revokedAt       DateTime?
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
+  id          String                   @id @default(cuid())
+  operatorId  String
+  familyCode  ExperienceFamilyCode
+  status      OperatorCapabilityStatus @default(NOT_REQUESTED)
+  approvedAt  DateTime?
+  suspendedAt DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
 
-  operator        Operator                  @relation(fields: [operatorId], references: [id])
+  operator Operator @relation(fields: [operatorId], references: [id])
 
   @@unique([operatorId, familyCode])
 }
 
 model ExperienceProduct {
-  id              String                  @id @default(cuid())
-  operatorId      String?
-  familyCode      ExperienceFamilyCode
-  category        ProductCategory
-  title           String
-  shortSummary    String
-  isBookable      Boolean                 @default(false)
-  isPublished     Boolean                 @default(false)
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  id           String               @id @default(cuid())
+  operatorId   String?
+  familyCode   ExperienceFamilyCode
+  category     ProductCategory
+  title        String
+  shortSummary String
+  isBookable   Boolean              @default(false)
+  isPublished  Boolean              @default(false)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
-  operator        Operator?               @relation(fields: [operatorId], references: [id])
+  operator        Operator?                @relation(fields: [operatorId], references: [id])
   bookings        Booking[]
   exposureRecords MarketplaceExposure[]
   siteAccessLinks ProductSiteAccessPoint[]
 }
 
 model Booking {
-  id                      String                  @id @default(cuid())
-  travelerId              String
-  passId                  String?
-  productId               String
-  operatorId              String?
-  sourceAttributionId      String?
-  status                  BookingStatus           @default(REQUESTED)
-  paymentReadinessStatus  PaymentReadinessStatus  @default(NOT_READY)
-  requestedAt             DateTime                @default(now())
-  operatorReviewedAt      DateTime?
-  confirmedAt             DateTime?
-  completedAt             DateTime?
-  cancelledAt             DateTime?
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
+  id                     String                 @id @default(cuid())
+  travelerId             String
+  passId                 String?
+  productId              String
+  operatorId             String?
+  sourceAttributionId    String?
+  status                 BookingStatus          @default(REQUESTED)
+  paymentReadinessStatus PaymentReadinessStatus @default(NOT_READY)
+  requestedAt            DateTime               @default(now())
+  operatorReviewedAt     DateTime?
+  confirmedAt            DateTime?
+  completedAt            DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
 
-  traveler                TravelerProfile         @relation(fields: [travelerId], references: [id])
-  pass                    TravelerPass?           @relation(fields: [passId], references: [id])
-  product                 ExperienceProduct       @relation(fields: [productId], references: [id])
-  operator                Operator?               @relation(fields: [operatorId], references: [id])
-  sourceAttribution       SourceAttribution?      @relation(fields: [sourceAttributionId], references: [id])
-  visitStamps             VisitStamp[]
-  scanEvents              ScanEvent[]
+  traveler          TravelerProfile    @relation(fields: [travelerId], references: [id])
+  pass              TravelerPass?      @relation(fields: [passId], references: [id])
+  product           ExperienceProduct  @relation(fields: [productId], references: [id])
+  operator          Operator?          @relation(fields: [operatorId], references: [id])
+  sourceAttribution SourceAttribution? @relation(fields: [sourceAttributionId], references: [id])
+  visitStamps       VisitStamp[]
+  scanEvents        ScanEvent[]
 }
 
 model SiteAccessPoint {
-  id             String                  @id @default(cuid())
-  publicCode     String                  @unique
-  name           String
-  status         SiteAccessPointStatus   @default(DRAFT)
-  locationLabel  String?
-  actionContext  String
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
+  id            String                @id @default(cuid())
+  publicCode    String                @unique
+  name          String
+  status        SiteAccessPointStatus @default(DRAFT)
+  locationLabel String?
+  actionContext String
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 
-  productLinks   ProductSiteAccessPoint[]
-  scanEvents     ScanEvent[]
-  visitStamps    VisitStamp[]
+  productLinks ProductSiteAccessPoint[]
+  scanEvents   ScanEvent[]
+  visitStamps  VisitStamp[]
 }
 
 model ProductSiteAccessPoint {
   id                String   @id @default(cuid())
-  productId          String
-  siteAccessPointId  String
-  isRequired         Boolean  @default(false)
-  createdAt          DateTime @default(now())
+  productId         String
+  siteAccessPointId String
+  isRequired        Boolean  @default(false)
+  createdAt         DateTime @default(now())
 
-  product            ExperienceProduct @relation(fields: [productId], references: [id])
-  siteAccessPoint    SiteAccessPoint   @relation(fields: [siteAccessPointId], references: [id])
+  product         ExperienceProduct @relation(fields: [productId], references: [id])
+  siteAccessPoint SiteAccessPoint   @relation(fields: [siteAccessPointId], references: [id])
 
   @@unique([productId, siteAccessPointId])
 }
 
 model ScanEvent {
-  id                String            @id @default(cuid())
-  travelerId         String
-  passId             String?
-  bookingId          String?
-  siteAccessPointId  String
-  status             ScanEventStatus   @default(CREATED)
-  scannedAt          DateTime          @default(now())
-  rejectionReason    String?
-  metadata           Json?
-  createdAt          DateTime          @default(now())
+  id                String          @id @default(cuid())
+  travelerId        String
+  passId            String?
+  bookingId         String?
+  siteAccessPointId String
+  status            ScanEventStatus @default(CREATED)
+  scannedAt         DateTime        @default(now())
+  rejectionReason   String?
+  metadata          Json?
+  createdAt         DateTime        @default(now())
 
-  traveler           TravelerProfile   @relation(fields: [travelerId], references: [id])
-  pass               TravelerPass?     @relation(fields: [passId], references: [id])
-  booking            Booking?          @relation(fields: [bookingId], references: [id])
-  siteAccessPoint    SiteAccessPoint   @relation(fields: [siteAccessPointId], references: [id])
-  visitStamp         VisitStamp?
+  traveler        TravelerProfile @relation(fields: [travelerId], references: [id])
+  pass            TravelerPass?   @relation(fields: [passId], references: [id])
+  booking         Booking?        @relation(fields: [bookingId], references: [id])
+  siteAccessPoint SiteAccessPoint @relation(fields: [siteAccessPointId], references: [id])
+  visitStamp      VisitStamp?
 }
 
 model VisitStamp {
-  id                String            @id @default(cuid())
-  travelerId         String
-  passId             String
-  bookingId          String?
-  scanEventId        String?           @unique
-  siteAccessPointId  String
-  status             VisitStampStatus  @default(NOT_ELIGIBLE)
-  issuedAt           DateTime?
-  revokedAt          DateTime?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id                String           @id @default(cuid())
+  travelerId        String
+  passId            String
+  bookingId         String?
+  scanEventId       String?          @unique
+  siteAccessPointId String
+  status            VisitStampStatus @default(NOT_ELIGIBLE)
+  issuedAt          DateTime?
+  revokedAt         DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
-  traveler           TravelerProfile   @relation(fields: [travelerId], references: [id])
-  pass               TravelerPass      @relation(fields: [passId], references: [id])
-  booking            Booking?          @relation(fields: [bookingId], references: [id])
-  scanEvent          ScanEvent?        @relation(fields: [scanEventId], references: [id])
-  siteAccessPoint    SiteAccessPoint   @relation(fields: [siteAccessPointId], references: [id])
+  traveler        TravelerProfile @relation(fields: [travelerId], references: [id])
+  pass            TravelerPass    @relation(fields: [passId], references: [id])
+  booking         Booking?        @relation(fields: [bookingId], references: [id])
+  scanEvent       ScanEvent?      @relation(fields: [scanEventId], references: [id])
+  siteAccessPoint SiteAccessPoint @relation(fields: [siteAccessPointId], references: [id])
 }
 
 model MarketplaceExposure {
-  id            String                    @id @default(cuid())
-  operatorId    String
-  productId     String?
-  status        MarketplaceExposureStatus @default(HIDDEN)
-  score         Int                       @default(0)
-  reason        String?
-  exposedAt     DateTime?
-  cappedAt      DateTime?
-  suspendedAt   DateTime?
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
+  id          String                    @id @default(cuid())
+  operatorId  String
+  productId   String?
+  status      MarketplaceExposureStatus @default(HIDDEN)
+  score       Int                       @default(0)
+  reason      String?
+  exposedAt   DateTime?
+  cappedAt    DateTime?
+  suspendedAt DateTime?
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
 
-  operator      Operator                  @relation(fields: [operatorId], references: [id])
-  product       ExperienceProduct?        @relation(fields: [productId], references: [id])
+  operator Operator           @relation(fields: [operatorId], references: [id])
+  product  ExperienceProduct? @relation(fields: [productId], references: [id])
 }
 
 model SourceAttribution {
-  id              String                  @id @default(cuid())
-  type            SourceAttributionType
-  sourceCode      String?
-  sourceName      String?
-  externalRef     String?
-  createdAt       DateTime                @default(now())
+  id          String                @id @default(cuid())
+  type        SourceAttributionType
+  sourceCode  String?
+  sourceName  String?
+  externalRef String?
+  createdAt   DateTime              @default(now())
 
-  bookings        Booking[]
+  bookings Booking[]
 }
 
 model AuditEvent {
-  id              String          @id @default(cuid())
-  actorUserId      String?
-  actionType       AuditActionType
-  entityType       String
-  entityId         String?
-  reason           String?
-  metadata         Json?
-  createdAt        DateTime        @default(now())
+  id          String          @id @default(cuid())
+  actorUserId String?
+  actionType  AuditActionType
+  entityType  String
+  entityId    String?
+  reason      String?
+  metadata    Json?
+  createdAt   DateTime        @default(now())
 
-  actor            User?           @relation("AuditActor", fields: [actorUserId], references: [id])
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
 }
 
 model ExperienceFamilyRegistry {
@@ -411,31 +411,139 @@ enum AuthSessionStatus {
 }
 
 model AuthCredential {
-  id             String               @id @default(cuid())
-  userId         String
-  passwordHash   String
-  passwordSalt   String
-  status         AuthCredentialStatus @default(ACTIVE)
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  disabledAt     DateTime?
-  rotatedAt      DateTime?
+  id           String               @id @default(cuid())
+  userId       String
+  passwordHash String
+  passwordSalt String
+  status       AuthCredentialStatus @default(ACTIVE)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  disabledAt   DateTime?
+  rotatedAt    DateTime?
 
-  user           User                 @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([userId])
 }
 
 model AuthSession {
-  id             String            @id @default(cuid())
-  userId         String
+  id               String            @id @default(cuid())
+  userId           String
   sessionTokenHash String            @unique
-  status         AuthSessionStatus @default(ACTIVE)
-  issuedAt       DateTime          @default(now())
-  expiresAt      DateTime
-  revokedAt      DateTime?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  status           AuthSessionStatus @default(ACTIVE)
+  issuedAt         DateTime          @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  user           User              @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum RegistryRecordStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum GovernanceOwnerType {
+  LGU
+  PROVINCIAL_TOURISM
+  DOT
+  COMMUNITY
+  PRIVATE_PARTNER
+  MIXED
+}
+
+enum DestinationSiteType {
+  BEACH
+  ISLAND
+  PORT_TERMINAL
+  MUNICIPAL_HALL
+  BARANGAY_HALL
+  TOURISM_OFFICE
+  ACCOMMODATION
+  FOOD_MERCHANT
+  TRANSPORT_NODE
+  CULTURE_SITE
+  NATURE_SITE
+  DIVE_SITE
+  SURF_SITE
+  TRAIL_STOP
+  VIEW_DECK
+  WATERFALL
+  CAVE
+  OTHER
+}
+
+model Municipality {
+  id                  String               @id @default(cuid())
+  code                String               @unique
+  name                String
+  provinceName        String               @default("Dinagat Islands")
+  regionName          String               @default("Caraga")
+  status              RegistryRecordStatus @default(DRAFT)
+  governanceOwnerType GovernanceOwnerType  @default(PROVINCIAL_TOURISM)
+  governanceOwnerName String?
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  barangays        Barangay[]
+  destinationSites DestinationSite[]
+
+  @@index([status])
+  @@index([governanceOwnerType])
+}
+
+model Barangay {
+  id                  String               @id @default(cuid())
+  municipalityId      String
+  code                String
+  name                String
+  status              RegistryRecordStatus @default(DRAFT)
+  governanceOwnerType GovernanceOwnerType  @default(LGU)
+  governanceOwnerName String?
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  municipality     Municipality      @relation(fields: [municipalityId], references: [id])
+  destinationSites DestinationSite[]
+
+  @@unique([municipalityId, code])
+  @@index([municipalityId])
+  @@index([status])
+  @@index([governanceOwnerType])
+}
+
+model DestinationSite {
+  id                  String               @id @default(cuid())
+  municipalityId      String
+  barangayId          String?
+  code                String
+  name                String
+  siteType            DestinationSiteType
+  status              RegistryRecordStatus @default(DRAFT)
+  governanceOwnerType GovernanceOwnerType  @default(LGU)
+  governanceOwnerName String?
+  publicSummary       String?
+  internalNotes       String?
+  latitude            Decimal?             @db.Decimal(10, 7)
+  longitude           Decimal?             @db.Decimal(10, 7)
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  municipality Municipality @relation(fields: [municipalityId], references: [id])
+  barangay     Barangay?    @relation(fields: [barangayId], references: [id])
+
+  @@unique([municipalityId, code])
+  @@index([municipalityId])
+  @@index([barangayId])
+  @@index([siteType])
+  @@index([status])
+  @@index([governanceOwnerType])
 }
