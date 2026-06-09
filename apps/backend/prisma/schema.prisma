@@ -547,3 +547,149 @@ model DestinationSite {
   @@index([status])
   @@index([governanceOwnerType])
 }
+
+enum LocalOperatorProviderType {
+  TOUR_OPERATOR
+  TRANSPORT_PROVIDER
+  ACCOMMODATION_PROVIDER
+  FOOD_MERCHANT
+  GUIDE
+  COMMUNITY_ORGANIZATION
+  LGU_OPERATED
+  MIXED_PROVIDER
+}
+
+enum LocalOperatorVerificationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum LocalOperatorAccreditationStatus {
+  NOT_PROVIDED
+  PENDING_REVIEW
+  DOT_ACCREDITED
+  LGU_RECOGNIZED
+  PROVISIONAL
+  EXPIRED
+  REJECTED
+}
+
+enum LocalOperatorCapabilityCategory {
+  ISLAND_HOPPING
+  LAND_TOUR
+  WATER_ACTIVITY
+  CULTURE_COMMUNITY
+  FOOD_WELLNESS
+  TRANSPORT_SUPPORT
+  ACCOMMODATION
+  GUIDE_SERVICE
+  SITE_ACCESS_SUPPORT
+  CUSTOM_SERVICE
+}
+
+enum LocalOperatorCommercialReadinessStatus {
+  NOT_READY
+  PROFILE_ONLY
+  REQUEST_TO_CONFIRM
+  PRICING_READY
+  BOOKING_READY
+  SUSPENDED
+}
+
+enum LocalOperatorExposureStatus {
+  HIDDEN
+  ELIGIBLE_FOR_REVIEW
+  APPROVED_FOR_EXPOSURE
+  SUSPENDED
+  BLOCKED
+}
+
+enum LocalOperatorComplianceSeverity {
+  INFO
+  WARNING
+  RESTRICTION
+  SUSPENSION
+  BLOCKER
+}
+
+model LocalOperatorRegistryRecord {
+  id                        String                                 @id @default(cuid())
+  registryCode              String                                 @unique
+  displayName               String
+  legalName                 String?
+  providerType              LocalOperatorProviderType
+  verificationStatus        LocalOperatorVerificationStatus        @default(DRAFT)
+  accreditationStatus       LocalOperatorAccreditationStatus       @default(NOT_PROVIDED)
+  commercialReadinessStatus LocalOperatorCommercialReadinessStatus @default(NOT_READY)
+  exposureStatus            LocalOperatorExposureStatus            @default(HIDDEN)
+  primaryMunicipalityCode   String?
+  primaryBarangayCode       String?
+  contactPersonName         String?
+  contactEmail              String?
+  contactPhone              String?
+  publicSummary             String?
+  internalNotes             String?
+  termsAcceptedAt           DateTime?
+  lastReviewedAt            DateTime?
+  lastReviewedByUserId      String?
+  metadata                  Json?
+  createdAt                 DateTime                               @default(now())
+  updatedAt                 DateTime                               @updatedAt
+
+  capabilities      LocalOperatorCapabilityRecord[]
+  complianceRecords LocalOperatorComplianceRecord[]
+
+  @@index([providerType])
+  @@index([verificationStatus])
+  @@index([accreditationStatus])
+  @@index([commercialReadinessStatus])
+  @@index([exposureStatus])
+  @@index([primaryMunicipalityCode])
+  @@index([primaryBarangayCode])
+}
+
+model LocalOperatorCapabilityRecord {
+  id                 String                          @id @default(cuid())
+  operatorRegistryId String
+  category           LocalOperatorCapabilityCategory
+  status             RegistryRecordStatus            @default(DRAFT)
+  title              String?
+  description        String?
+  readinessNotes     String?
+  metadata           Json?
+  createdAt          DateTime                        @default(now())
+  updatedAt          DateTime                        @updatedAt
+
+  operatorRegistry LocalOperatorRegistryRecord @relation(fields: [operatorRegistryId], references: [id])
+
+  @@unique([operatorRegistryId, category])
+  @@index([operatorRegistryId])
+  @@index([category])
+  @@index([status])
+}
+
+model LocalOperatorComplianceRecord {
+  id                 String                          @id @default(cuid())
+  operatorRegistryId String
+  severity           LocalOperatorComplianceSeverity @default(INFO)
+  status             RegistryRecordStatus            @default(ACTIVE)
+  title              String
+  details            String?
+  reason             String?
+  resolvedAt         DateTime?
+  resolvedByUserId   String?
+  metadata           Json?
+  createdAt          DateTime                        @default(now())
+  updatedAt          DateTime                        @updatedAt
+
+  operatorRegistry LocalOperatorRegistryRecord @relation(fields: [operatorRegistryId], references: [id])
+
+  @@index([operatorRegistryId])
+  @@index([severity])
+  @@index([status])
+}
