@@ -168,24 +168,32 @@ model TravelerProfile {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user        User           @relation(fields: [userId], references: [id])
-  passes      TravelerPass[]
-  bookings    Booking[]
-  scanEvents  ScanEvent[]
-  visitStamps VisitStamp[]
+  user           User                    @relation(fields: [userId], references: [id])
+  passes         TravelerPass[]
+  bookings       Booking[]
+  scanEvents     ScanEvent[]
+  visitStamps    VisitStamp[]
+  identityClaims TravelerIdentityClaim[]
 }
 
 model TravelerPass {
-  id           String    @id @default(cuid())
-  travelerId   String
-  qrStatus     QrStatus  @default(NOT_ISSUED)
-  qrPublicCode String    @unique
-  issuedAt     DateTime?
-  activatedAt  DateTime?
-  expiresAt    DateTime?
-  revokedAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                 String                     @id @default(cuid())
+  travelerId         String
+  qrStatus           QrStatus                   @default(NOT_ISSUED)
+  qrPublicCode       String                     @unique
+  issuedAt           DateTime?
+  activatedAt        DateTime?
+  expiresAt          DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  identityStatus     TravelerPassIdentityStatus @default(DRAFT)
+  identityPublicCode String?                    @unique
+  identityIssuedAt   DateTime?
+  identityRevokedAt  DateTime?
+  identityMetadata   Json?
+  qrCredentials      TravelerPassQrCredential[]
+  identityClaims     TravelerIdentityClaim[]
 
   traveler    TravelerProfile @relation(fields: [travelerId], references: [id])
   scanEvents  ScanEvent[]
@@ -834,4 +842,96 @@ model SiteAccessFeeRule {
   @@index([eligibilityType])
   @@index([collectionMode])
   @@index([status])
+}
+
+enum TravelerPassIdentityStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  REVOKED
+  ARCHIVED
+}
+
+enum TravelerPassQrCredentialStatus {
+  DRAFT
+  ACTIVE
+  ROTATED
+  REVOKED
+  EXPIRED
+  ARCHIVED
+}
+
+enum TravelerPassQrCredentialPurpose {
+  TRAVELER_IDENTITY
+  SITE_ACCESS_SCAN
+  BOOKING_CONTEXT
+  STAFF_VALIDATION
+  GOVERNANCE_AUDIT
+}
+
+enum TravelerIdentityClaimType {
+  EMAIL
+  PHONE
+  NAME_REFERENCE
+  DOCUMENT_REFERENCE
+  MANUAL_GOVERNANCE_REFERENCE
+  EXTERNAL_REFERENCE
+}
+
+enum TravelerIdentityClaimStatus {
+  DRAFT
+  CLAIMED
+  VERIFIED
+  REJECTED
+  REVOKED
+  ARCHIVED
+}
+
+model TravelerPassQrCredential {
+  id             String                          @id @default(cuid())
+  passId         String
+  credentialCode String                          @unique
+  status         TravelerPassQrCredentialStatus  @default(DRAFT)
+  purpose        TravelerPassQrCredentialPurpose @default(TRAVELER_IDENTITY)
+  qrTokenHash    String?
+  issuedAt       DateTime?
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  rotationReason String?
+  metadata       Json?
+  createdAt      DateTime                        @default(now())
+  updatedAt      DateTime                        @updatedAt
+
+  pass TravelerPass @relation(fields: [passId], references: [id])
+
+  @@index([passId])
+  @@index([status])
+  @@index([purpose])
+  @@index([issuedAt])
+  @@index([expiresAt])
+}
+
+model TravelerIdentityClaim {
+  id                 String                      @id @default(cuid())
+  travelerId         String
+  passId             String?
+  claimType          TravelerIdentityClaimType
+  status             TravelerIdentityClaimStatus @default(DRAFT)
+  claimReferenceHash String?
+  verificationNotes  String?
+  verifiedAt         DateTime?
+  verifiedByUserId   String?
+  revokedAt          DateTime?
+  metadata           Json?
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+
+  traveler TravelerProfile @relation(fields: [travelerId], references: [id])
+  pass     TravelerPass?   @relation(fields: [passId], references: [id])
+
+  @@index([travelerId])
+  @@index([passId])
+  @@index([claimType])
+  @@index([status])
+  @@index([verifiedAt])
 }
