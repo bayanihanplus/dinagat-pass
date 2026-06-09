@@ -7,3 +7,4 @@ export * from "./operator-registry";
 export * from "./site-access";
 export * from "./traveler-pass-identity";
 export * from "./activity-proof";
+export * from "./trip-booking-commercial";

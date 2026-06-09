@@ -253,21 +253,26 @@ model ExperienceProduct {
 }
 
 model Booking {
-  id                     String                 @id @default(cuid())
-  travelerId             String
-  passId                 String?
-  productId              String
-  operatorId             String?
-  sourceAttributionId    String?
-  status                 BookingStatus          @default(REQUESTED)
-  paymentReadinessStatus PaymentReadinessStatus @default(NOT_READY)
-  requestedAt            DateTime               @default(now())
-  operatorReviewedAt     DateTime?
-  confirmedAt            DateTime?
-  completedAt            DateTime?
-  cancelledAt            DateTime?
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
+  id                      String                      @id @default(cuid())
+  travelerId              String
+  passId                  String?
+  productId               String
+  operatorId              String?
+  sourceAttributionId     String?
+  status                  BookingStatus               @default(REQUESTED)
+  paymentReadinessStatus  PaymentReadinessStatus      @default(NOT_READY)
+  requestedAt             DateTime                    @default(now())
+  operatorReviewedAt      DateTime?
+  confirmedAt             DateTime?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+  commercialStatus        TripBookingCommercialStatus @default(DRAFT)
+  commercialSourceChannel TripBookingSourceChannel?
+  commercialPricingMode   TripBookingPricingMode?
+  commercialPaymentStatus TripBookingPaymentStatus    @default(UNPAID)
+  commercialMetadata      Json?
 
   traveler          TravelerProfile    @relation(fields: [travelerId], references: [id])
   pass              TravelerPass?      @relation(fields: [passId], references: [id])
@@ -1046,4 +1051,172 @@ enum VisitStampProofStatus {
   REVOKED
   EXPIRED
   ARCHIVED
+}
+
+enum TripBookingCommercialStatus {
+  DRAFT
+  REQUESTED
+  QUOTED
+  CONFIRMED
+  READY_FOR_PAYMENT
+  PAYMENT_PENDING
+  PAID
+  PARTIALLY_PAID
+  FULFILLMENT_PENDING
+  FULFILLED
+  CANCELLED
+  EXPIRED
+  ARCHIVED
+}
+
+enum TripBookingProductType {
+  SITE_ACCESS
+  TOUR
+  TRANSPORT
+  ACCOMMODATION
+  GUIDE_SERVICE
+  ACTIVITY
+  PACKAGE
+  ADD_ON
+  OTHER
+}
+
+enum TripBookingSourceChannel {
+  DIRECT_TRAVELER
+  LGU_DESK
+  TOURISM_OFFICE
+  HOTEL_DESK
+  TRAVEL_PARTNER
+  OTA_INTAKE
+  STAFF_CREATED
+  SYSTEM_CREATED
+}
+
+enum TripBookingPricingMode {
+  FIXED_PRICE
+  PER_PAX
+  PER_UNIT
+  REQUEST_TO_CONFIRM
+  GOVERNED_RATE
+  PARTNER_QUOTE
+  FREE
+}
+
+enum TripBookingFulfillmentStatus {
+  NOT_REQUIRED
+  PENDING_ASSIGNMENT
+  ASSIGNED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REASSIGNED
+  FAILED
+}
+
+enum TripBookingPaymentStatus {
+  NOT_REQUIRED
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  REFUND_PENDING
+  REFUNDED
+  FAILED
+  CANCELLED
+}
+
+model TripBookingCommercialRecord {
+  id                         String                       @id @default(cuid())
+  commercialCode             String                       @unique
+  bookingId                  String?
+  travelerId                 String?
+  passId                     String?
+  sourceChannel              TripBookingSourceChannel
+  productType                TripBookingProductType
+  pricingMode                TripBookingPricingMode
+  commercialStatus           TripBookingCommercialStatus  @default(DRAFT)
+  paymentStatus              TripBookingPaymentStatus     @default(UNPAID)
+  fulfillmentStatus          TripBookingFulfillmentStatus @default(NOT_REQUIRED)
+  assignedOperatorRegistryId String?
+  sourcePartnerName          String?
+  sourceReferenceHash        String?
+  quotedAmountCents          Int?
+  confirmedAmountCents       Int?
+  currency                   String                       @default("PHP")
+  paxCount                   Int?
+  requestedForDate           DateTime?
+  confirmedAt                DateTime?
+  cancelledAt                DateTime?
+  expiresAt                  DateTime?
+  governanceNotes            String?
+  metadata                   Json?
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+
+  lineItems          TripBookingLineItem[]
+  fulfillmentRecords TripBookingFulfillmentRecord[]
+
+  @@index([bookingId])
+  @@index([travelerId])
+  @@index([passId])
+  @@index([sourceChannel])
+  @@index([productType])
+  @@index([pricingMode])
+  @@index([commercialStatus])
+  @@index([paymentStatus])
+  @@index([fulfillmentStatus])
+  @@index([assignedOperatorRegistryId])
+  @@index([requestedForDate])
+  @@index([confirmedAt])
+}
+
+model TripBookingLineItem {
+  id                 String                 @id @default(cuid())
+  commercialRecordId String
+  lineItemCode       String                 @unique
+  productType        TripBookingProductType
+  pricingMode        TripBookingPricingMode
+  title              String
+  quantity           Int                    @default(1)
+  unitAmountCents    Int?
+  totalAmountCents   Int?
+  currency           String                 @default("PHP")
+  governanceNotes    String?
+  metadata           Json?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  commercialRecord TripBookingCommercialRecord @relation(fields: [commercialRecordId], references: [id])
+
+  @@index([commercialRecordId])
+  @@index([productType])
+  @@index([pricingMode])
+}
+
+model TripBookingFulfillmentRecord {
+  id                         String                       @id @default(cuid())
+  commercialRecordId         String
+  fulfillmentCode            String                       @unique
+  fulfillmentStatus          TripBookingFulfillmentStatus @default(PENDING_ASSIGNMENT)
+  assignedOperatorRegistryId String?
+  assignedByUserId           String?
+  acceptedAt                 DateTime?
+  startedAt                  DateTime?
+  completedAt                DateTime?
+  cancelledAt                DateTime?
+  reassignedAt               DateTime?
+  fulfillmentReferenceHash   String?
+  governanceNotes            String?
+  metadata                   Json?
+  createdAt                  DateTime                     @default(now())
+  updatedAt                  DateTime                     @updatedAt
+
+  commercialRecord TripBookingCommercialRecord @relation(fields: [commercialRecordId], references: [id])
+
+  @@index([commercialRecordId])
+  @@index([fulfillmentStatus])
+  @@index([assignedOperatorRegistryId])
+  @@index([assignedByUserId])
+  @@index([acceptedAt])
+  @@index([completedAt])
 }
