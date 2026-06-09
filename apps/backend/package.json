@@ -1,0 +1,42 @@
+{
+  "name": "@dinagat-pass/backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dinagat Pass backend authority shell. NestJS + Fastify.",
+  "scripts": {
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "build": "nest build",
+    "db:validate": "prisma validate --schema prisma/schema.prisma",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:migrate:init": "prisma migrate dev --schema prisma/schema.prisma --name init",
+    "db:migrate:seed-foundation": "prisma migrate dev --schema prisma/schema.prisma --name seed_foundation",
+    "db:status": "prisma migrate status --schema prisma/schema.prisma",
+    "db:seed": "prisma db seed --schema prisma/schema.prisma",
+    "db:studio": "prisma studio --schema prisma/schema.prisma"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.cjs"
+  },
+  "dependencies": {
+    "@dinagat-pass/shared": "workspace:*",
+    "@nestjs/common": "latest",
+    "@nestjs/core": "latest",
+    "@nestjs/platform-fastify": "latest",
+    "@prisma/client": "6.19.0",
+    "fastify": "latest",
+    "reflect-metadata": "latest",
+    "rxjs": "latest"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "latest",
+    "@nestjs/schematics": "latest",
+    "@nestjs/testing": "latest",
+    "@types/node": "latest",
+    "prisma": "6.19.0",
+    "typescript": "5.9.3"
+  }
+}

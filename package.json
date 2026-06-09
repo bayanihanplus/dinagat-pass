@@ -1,0 +1,23 @@
+{
+  "name": "dinagat-pass",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Standalone Dinagat Pass monorepo. Destination Economy Operating System for Dinagat Islands.",
+  "packageManager": "pnpm@11.5.1",
+  "scripts": {
+    "doctrine": "echo \"Dinagat Pass is standalone. OSP is architectural reference only.\"",
+    "check": "pnpm typecheck && pnpm build",
+    "typecheck": "pnpm --filter @dinagat-pass/shared typecheck && pnpm --filter @dinagat-pass/backend typecheck && pnpm --filter @dinagat-pass/web typecheck",
+    "build": "pnpm --filter @dinagat-pass/shared build && pnpm --filter @dinagat-pass/backend build && pnpm --filter @dinagat-pass/web build",
+    "lint": "pnpm --filter @dinagat-pass/shared lint && pnpm --filter @dinagat-pass/backend lint && pnpm --filter @dinagat-pass/web lint",
+    "dev:web": "pnpm --filter @dinagat-pass/web dev",
+    "dev:backend": "pnpm --filter @dinagat-pass/backend dev",
+    "health": "echo \"Web health: /api/health | Backend health: /health\""
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@types/node": "latest",
+    "eslint": "latest",
+    "typescript": "5.9.3"
+  }
+}

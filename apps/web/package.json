@@ -1,0 +1,24 @@
+{
+  "name": "@dinagat-pass/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Dinagat Pass web app shell. Mobile-first PWA direction, no product UI yet.",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint app",
+    "build": "next build"
+  },
+  "dependencies": {
+    "@dinagat-pass/shared": "workspace:*",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "5.9.3"
+  }
+}

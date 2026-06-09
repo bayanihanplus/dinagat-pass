@@ -1,0 +1,21 @@
+services:
+  dinagat-pass-postgres:
+    image: postgres:16-alpine
+    container_name: dinagat-pass-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dinagat_pass
+      POSTGRES_USER: dinagat_pass_user
+      POSTGRES_PASSWORD: dinagat_pass_password
+    ports:
+      - "55432:5432"
+    volumes:
+      - dinagat_pass_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dinagat_pass_user -d dinagat_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  dinagat_pass_postgres_data:

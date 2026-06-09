@@ -1,0 +1,38 @@
+﻿# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Generated
+coverage/
+.tmp/
+.cache/
+
+# Turbo / task cache
+.turbo/
+
+# Local verification scratch folders
+.dinagat-verify/
+**/.dinagat-verify/
