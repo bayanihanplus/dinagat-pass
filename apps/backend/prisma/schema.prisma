@@ -1220,3 +1220,69 @@ model TripBookingFulfillmentRecord {
   @@index([acceptedAt])
   @@index([completedAt])
 }
+
+enum CommercialTermsType {
+  OPERATOR_MARKETPLACE_PARTICIPATION
+  TRIP_BOOKING_FULFILLMENT
+  SITE_ACCESS_FULFILLMENT
+  PAYMENT_AND_CANCELLATION
+  SOURCE_ATTRIBUTION
+  QR_AND_STAMP_COMPLIANCE
+}
+
+enum TermsAcceptanceStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  REVOKED
+  SUPERSEDED
+}
+
+model CommercialTerms {
+  id          String                @id @default(cuid())
+  type        CommercialTermsType
+  version     Int
+  title       String
+  summary     String?
+  body        String
+  status      TermsAcceptanceStatus @default(DRAFT)
+  effectiveAt DateTime?
+  retiredAt   DateTime?
+
+  createdByUserId String?
+  approvedByUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, version])
+  @@index([type])
+  @@index([status])
+  @@index([effectiveAt])
+  @@index([createdByUserId])
+  @@index([approvedByUserId])
+}
+
+
+model OperatorTermsAcceptance {
+  id                    String                @id @default(cuid())
+  commercialTermsId     String
+  operatorRegistryId    String
+  acceptedByUserId      String?
+  status                TermsAcceptanceStatus @default(ACTIVE)
+  acceptedAt            DateTime              @default(now())
+  revokedAt             DateTime?
+  acceptanceSnapshotJson Json?
+  sourceIp              String?
+  userAgent             String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([commercialTermsId, operatorRegistryId])
+  @@index([commercialTermsId])
+  @@index([operatorRegistryId])
+  @@index([acceptedByUserId])
+  @@index([status])
+  @@index([acceptedAt])
+}
