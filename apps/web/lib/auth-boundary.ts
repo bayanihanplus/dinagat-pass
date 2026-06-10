@@ -8,10 +8,50 @@ export const DINAGAT_AUTH_BOUNDARY = {
   fakeDashboardAuthAllowed: false,
   loginUiCreated: true,
   protectedRoutePrepared: true,
-  lane: "DINAGAT-PASS-WEB-AUTH-BOUNDARY-FOUNDATION-01"
+  roleGatePrepared: true,
+  lane: "DINAGAT-PASS-AUTH-SESSION-ROLE-GATE-FOUNDATION-01"
 } as const;
 
+export const DINAGAT_USER_ROLES = [
+  "TRAVELER",
+  "OPERATOR_OWNER",
+  "OPERATOR_STAFF",
+  "LGU_USER",
+  "ADMIN",
+  "SUPER_ADMIN"
+] as const;
+
+export type DinagatUserRole = (typeof DINAGAT_USER_ROLES)[number];
+
 export const protectedTravelerRoutes = ["/traveler/home"] as const;
+
+export const protectedRouteRoleRules = [
+  {
+    route: "/traveler/home",
+    allowedRoles: ["TRAVELER", "SUPER_ADMIN"],
+    surface: "traveler",
+    unauthorizedRedirectPath: "/login?mode=returning&reason=role-required"
+  }
+] as const satisfies ReadonlyArray<{
+  route: string;
+  allowedRoles: readonly DinagatUserRole[];
+  surface: "traveler" | "operator" | "lgu" | "admin";
+  unauthorizedRedirectPath: string;
+}>;
+
+export type ProtectedRouteRoleRule = (typeof protectedRouteRoleRules)[number];
+
+export function isDinagatUserRole(value: string | undefined): value is DinagatUserRole {
+  return DINAGAT_USER_ROLES.includes(value as DinagatUserRole);
+}
+
+export function getProtectedRouteRoleRule(pathname: string): ProtectedRouteRoleRule | null {
+  return (
+    protectedRouteRoleRules.find((rule) => {
+      return pathname === rule.route || pathname.startsWith(`${rule.route}/`);
+    }) ?? null
+  );
+}
 
 export function isProtectedTravelerPath(pathname: string): boolean {
   return protectedTravelerRoutes.some((route) => {

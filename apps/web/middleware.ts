@@ -1,5 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getReturningLoginPath, isProtectedTravelerPath } from "./lib/auth-boundary";
+import {
+  getProtectedRouteRoleRule,
+  getReturningLoginPath,
+  isDinagatUserRole,
+  isProtectedTravelerPath,
+  type DinagatUserRole,
+} from "./lib/auth-boundary";
 
 const DINAGAT_SESSION_COOKIE = "dinagat_session";
 
@@ -7,7 +13,20 @@ type BackendAuthMeResponse = {
   authenticated?: boolean;
   authority?: string;
   frontendOwnsAuthority?: boolean;
+  user?: {
+    role?: string;
+  } | null;
 };
+
+type BackendSessionValidationResult =
+  | {
+      valid: true;
+      role: DinagatUserRole;
+    }
+  | {
+      valid: false;
+      role: null;
+    };
 
 function getBackendBaseUrl(request: NextRequest): string {
   const configuredBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
@@ -23,11 +42,14 @@ function getBackendBaseUrl(request: NextRequest): string {
   return request.nextUrl.origin;
 }
 
-async function validateBackendSession(request: NextRequest): Promise<boolean> {
+async function validateBackendSession(request: NextRequest): Promise<BackendSessionValidationResult> {
   const sessionCookie = request.cookies.get(DINAGAT_SESSION_COOKIE)?.value;
 
   if (!sessionCookie) {
-    return false;
+    return {
+      valid: false,
+      role: null,
+    };
   }
 
   const backendBaseUrl = getBackendBaseUrl(request);
@@ -44,18 +66,36 @@ async function validateBackendSession(request: NextRequest): Promise<boolean> {
     });
 
     if (!response.ok) {
-      return false;
+      return {
+        valid: false,
+        role: null,
+      };
     }
 
     const authMe = (await response.json()) as BackendAuthMeResponse;
+    const role = authMe.user?.role;
 
-    return (
+    if (
       authMe.authenticated === true &&
       authMe.authority === "backend" &&
-      authMe.frontendOwnsAuthority === false
-    );
+      authMe.frontendOwnsAuthority === false &&
+      isDinagatUserRole(role)
+    ) {
+      return {
+        valid: true,
+        role,
+      };
+    }
+
+    return {
+      valid: false,
+      role: null,
+    };
   } catch {
-    return false;
+    return {
+      valid: false,
+      role: null,
+    };
   }
 }
 
@@ -65,6 +105,15 @@ function redirectToReturningLogin(request: NextRequest): NextResponse {
   return response;
 }
 
+function redirectToRoleRequired(request: NextRequest, redirectPath: string): NextResponse {
+  const response = NextResponse.redirect(new URL(redirectPath, request.url));
+  return response;
+}
+
+function isRoleAllowed(role: DinagatUserRole, allowedRoles: readonly DinagatUserRole[]): boolean {
+  return allowedRoles.includes(role);
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -72,10 +121,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const backendSessionValid = await validateBackendSession(request);
+  const backendSession = await validateBackendSession(request);
 
-  if (!backendSessionValid) {
+  if (!backendSession.valid) {
     return redirectToReturningLogin(request);
+  }
+
+  const roleRule = getProtectedRouteRoleRule(pathname);
+
+  if (roleRule && !isRoleAllowed(backendSession.role, roleRule.allowedRoles)) {
+    return redirectToRoleRequired(request, roleRule.unauthorizedRedirectPath);
   }
 
   return NextResponse.next();
