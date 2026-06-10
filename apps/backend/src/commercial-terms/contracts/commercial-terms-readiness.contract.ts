@@ -3,7 +3,7 @@ export interface CommercialTermsReadinessContract {
   backendOwned: true;
   frontendOwnsTermsAcceptance: false;
   schemaFoundationCommitted: true;
-  acceptanceWriteFlowImplemented: false;
+  acceptanceWriteFlowImplemented: true;
   publicSignupCreated: false;
   jwtIssuedByController: false;
   migrationRequiredForThisCheck: false;
@@ -24,11 +24,12 @@ export interface CommercialTermsReadinessContract {
   audit: {
     auditEvents: number;
     auditModelAvailable: true;
-    acceptanceAuditWriteImplemented: false;
+    acceptanceAuditWriteImplemented: true;
   };
   contract: {
     lane: "DINAGAT-PASS-COMMERCIAL-TERMS-BACKEND-CONTRACT-FOUNDATION-01";
     readinessEndpoint: "/commercial-terms/readiness";
+    acceptanceEndpoint: "/commercial-terms/acceptance";
     nextMutationLane: "DINAGAT-PASS-COMMERCIAL-TERMS-ACCEPTANCE-BACKEND-CONTRACT-01";
   };
 }
