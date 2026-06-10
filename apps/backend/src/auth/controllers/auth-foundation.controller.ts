@@ -1,7 +1,18 @@
-﻿import { Body, Controller, Get, Headers, Post, Req, UseGuards } from "@nestjs/common";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Headers,
+  Post,
+  Req,
+  UseGuards
+} from "@nestjs/common";
 import { UserRole } from "@prisma/client";
 import { RequestWithAuthContext } from "../contracts";
 import { RequireCapabilities, RequireRoles } from "../decorators";
+import { CreateCredentialInput } from "../dto";
 import { AuthRequiredGuard, CapabilityGuard, RoleGuard } from "../guards";
 import { AuthService } from "../services";
 
@@ -24,25 +35,38 @@ export class AuthFoundationController {
 
   @Get("readiness")
   getReadiness() {
+    this.assertFoundationEndpointAllowed();
+
     return this.authService.getAuthReadiness();
   }
 
   @Post("credential")
   createCredential(@Body() body: LocalCreateCredentialBody) {
-    return this.authService.createCredential({
-      email: body.email ?? "admin.placeholder@dinagat-pass.local",
-      displayName: body.displayName ?? "Dinagat Pass Admin Placeholder",
-      role: body.role ?? UserRole.SUPER_ADMIN,
-      password: body.password ?? "ReplaceThisLocalPassword123!",
+    this.assertFoundationEndpointAllowed();
+
+    const credentialInput: CreateCredentialInput = {
+      email: this.requireEmail(body.email),
+      role: this.requireUserRole(body.role),
+      password: this.requirePassword(body.password),
       isActive: body.isActive ?? false
-    });
+    };
+
+    const displayName = body.displayName?.trim();
+
+    if (displayName) {
+      credentialInput.displayName = displayName;
+    }
+
+    return this.authService.createCredential(credentialInput);
   }
 
   @Post("session")
   createSession(@Body() body: LocalCreateSessionBody) {
+    this.assertFoundationEndpointAllowed();
+
     return this.authService.createSession({
-      email: body.email ?? "admin.placeholder@dinagat-pass.local",
-      password: body.password ?? "ReplaceThisLocalPassword123!"
+      email: this.requireEmail(body.email),
+      password: this.requirePassword(body.password)
     });
   }
 
@@ -108,5 +132,37 @@ export class AuthFoundationController {
       : "";
 
     return this.authService.revokeSession(token, "Local auth hardening verification revocation.");
+  }
+
+  private assertFoundationEndpointAllowed(): void {
+    const appEnv = (process.env.APP_ENV ?? process.env.NODE_ENV ?? "local").toLowerCase();
+
+    if (appEnv === "production" || appEnv === "prod") {
+      throw new ForbiddenException("Internal auth foundation endpoints are disabled in production.");
+    }
+  }
+
+  private requireEmail(value: string | undefined): string {
+    if (!value || value.trim().length === 0) {
+      throw new BadRequestException("email is required.");
+    }
+
+    return value.trim();
+  }
+
+  private requirePassword(value: string | undefined): string {
+    if (!value || value.trim().length === 0) {
+      throw new BadRequestException("password is required.");
+    }
+
+    return value;
+  }
+
+  private requireUserRole(role: UserRole | undefined): UserRole {
+    if (!role || !Object.values(UserRole).includes(role)) {
+      throw new BadRequestException("Valid role is required.");
+    }
+
+    return role;
   }
 }
