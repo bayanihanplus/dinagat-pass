@@ -5,11 +5,19 @@ import { AppConfigModule } from "./config";
 import { GovernanceModule } from "./governance";
 import { HealthController } from "./health";
 import { PrismaModule } from "./prisma";
+import { TripBookingModule } from "./trip-bookings/trip-booking.module";
 
 @Module({
-  imports: [AppConfigModule, PrismaModule, AuthModule, GovernanceModule, CommercialTermsModule],
+  imports: [
+    AppConfigModule,
+    PrismaModule,
+    AuthModule,
+    GovernanceModule,
+    CommercialTermsModule,
+    TripBookingModule,
+  ],
   controllers: [HealthController],
-  providers: []
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
