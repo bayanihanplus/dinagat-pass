@@ -30,7 +30,7 @@ export const protectedRouteRoleRules = [
     route: "/traveler/home",
     allowedRoles: ["TRAVELER", "SUPER_ADMIN"],
     surface: "traveler",
-    unauthorizedRedirectPath: "/login?mode=returning&reason=role-required"
+    unauthorizedRedirectPath: "/unauthorized?reason=role-required"
   }
 ] as const satisfies ReadonlyArray<{
   route: string;
@@ -61,4 +61,8 @@ export function isProtectedTravelerPath(pathname: string): boolean {
 
 export function getReturningLoginPath(): string {
   return "/login?mode=returning&reason=auth-required";
+}
+
+export function getUnauthorizedRolePath(): string {
+  return "/unauthorized?reason=role-required";
 }

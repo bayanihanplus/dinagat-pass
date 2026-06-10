@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   getProtectedRouteRoleRule,
   getReturningLoginPath,
+  getUnauthorizedRolePath,
   isDinagatUserRole,
   isProtectedTravelerPath,
   type DinagatUserRole,
@@ -106,7 +107,7 @@ function redirectToReturningLogin(request: NextRequest): NextResponse {
 }
 
 function redirectToRoleRequired(request: NextRequest, redirectPath: string): NextResponse {
-  const response = NextResponse.redirect(new URL(redirectPath, request.url));
+  const response = NextResponse.redirect(new URL(redirectPath || getUnauthorizedRolePath(), request.url));
   return response;
 }
 
