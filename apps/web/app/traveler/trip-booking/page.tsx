@@ -70,6 +70,7 @@ export default function TravelerTripBookingPage() {
   const [notes, setNotes] = useState('');
   const [state, setState] = useState<RequestState>('idle');
   const [error, setError] = useState('');
+  const [showSignInCta, setShowSignInCta] = useState(false);
   const [result, setResult] = useState<BookingResponse | null>(null);
 
   const selectedProduct = useMemo(
@@ -87,6 +88,7 @@ export default function TravelerTripBookingPage() {
 
     setState('submitting');
     setError('');
+    setShowSignInCta(false);
     setResult(null);
 
     try {
@@ -112,6 +114,7 @@ export default function TravelerTripBookingPage() {
       if (!response.ok) {
         setState('error');
         setError(getTravelerSafeBookingError(response.status, data?.message));
+        setShowSignInCta(response.status === 401 || response.status === 403);
         return;
       }
 
@@ -210,7 +213,14 @@ export default function TravelerTripBookingPage() {
             </div>
 
             {state === 'error' ? (
-              <div className="dp-alert dp-alert-error">{error}</div>
+              <div className="dp-alert dp-alert-error">
+                <p className="dp-alert-title">{error}</p>
+                {showSignInCta ? (
+                  <a className="dp-alert-action" href="/login">
+                    Sign in to continue
+                  </a>
+                ) : null}
+              </div>
             ) : null}
 
             {state === 'submitted' ? (
@@ -267,4 +277,5 @@ export default function TravelerTripBookingPage() {
     </main>
   );
 }
+
 
