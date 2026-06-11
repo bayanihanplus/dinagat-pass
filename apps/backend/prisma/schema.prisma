@@ -1286,3 +1286,203 @@ model OperatorTermsAcceptance {
   @@index([status])
   @@index([acceptedAt])
 }
+
+// -----------------------------------------------------------------------------
+// Trip Booking Commercial Spine Foundation
+// DINAGAT-PASS-TRIP-BOOKING-SCHEMA-FOUNDATION-01
+// Backend-owned booking authority. Frontend may only request intent.
+// Operator fulfillment must remain governed, readiness-scored, and audit-backed.
+// -----------------------------------------------------------------------------
+
+enum TripBookingIntentStatus {
+  DRAFT
+  REQUESTED
+  PENDING_OPERATOR_MATCH
+  PENDING_CONFIRMATION
+  READY_FOR_PAYMENT
+  PAYMENT_PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  REJECTED
+}
+
+enum TripBookingFulfillmentDecisionStatus {
+  PENDING
+  ELIGIBLE
+  SELECTED
+  REJECTED
+  SUPERSEDED
+}
+
+enum TripBookingPaymentReadinessStatus {
+  NOT_READY
+  READY
+  PAYMENT_PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum TripBookingVoucherReadinessStatus {
+  NOT_READY
+  READY
+  ISSUED
+  VOIDED
+}
+
+model TripBookingIntent {
+  id String @id @default(cuid())
+
+  bookingCode String @unique
+
+  productType TripBookingProductType
+  sourceChannel TripBookingSourceChannel
+  pricingMode TripBookingPricingMode
+  status TripBookingIntentStatus @default(DRAFT)
+
+  travelerUserId String?
+  requestedByUserId String?
+  operatorRegistryId String?
+
+  commercialTermsId String?
+  operatorTermsAcceptanceId String?
+
+  title String
+  destinationName String?
+  routeCode String?
+  serviceDate DateTime?
+  paxCount Int @default(1)
+
+  currencyCode String @default("PHP")
+  estimatedAmount Decimal? @db.Decimal(12, 2)
+  confirmedAmount Decimal? @db.Decimal(12, 2)
+
+  travelerRequestJson Json?
+  pricingSnapshotJson Json?
+  fulfillmentSnapshotJson Json?
+  sourceAttributionJson Json?
+  metadata Json?
+
+  backendOwned Boolean @default(true)
+  frontendMayOnlyRequestIntent Boolean @default(true)
+  fakeBookingAllowed Boolean @default(false)
+  flatOperatorListAllowed Boolean @default(false)
+  commercialTermsAcceptanceRequired Boolean @default(true)
+  governedOperatorFulfillmentRequired Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  requestedAt DateTime?
+  confirmedAt DateTime?
+  cancelledAt DateTime?
+
+  fulfillmentDecisions TripBookingFulfillmentDecision[]
+  paymentReadiness TripBookingPaymentReadiness?
+  voucherReadiness TripBookingVoucherReadiness?
+
+  @@index([bookingCode])
+  @@index([status])
+  @@index([productType])
+  @@index([sourceChannel])
+  @@index([operatorRegistryId])
+  @@index([commercialTermsId])
+  @@index([operatorTermsAcceptanceId])
+  @@index([serviceDate])
+}
+
+model TripBookingFulfillmentDecision {
+  id String @id @default(cuid())
+
+  tripBookingIntentId String
+  tripBookingIntent TripBookingIntent @relation(fields: [tripBookingIntentId], references: [id], onDelete: Cascade)
+
+  operatorRegistryId String
+  status TripBookingFulfillmentDecisionStatus @default(PENDING)
+
+  readinessScore Int @default(0)
+  fairnessScore Int @default(0)
+  categoryMatchScore Int @default(0)
+  riskPenaltyScore Int @default(0)
+
+  commercialTermsAccepted Boolean @default(false)
+  capabilityMatched Boolean @default(false)
+  pricingOrRequestModeReady Boolean @default(false)
+  availabilityOrRequestWindowReady Boolean @default(false)
+  noUnresolvedComplianceIssue Boolean @default(false)
+  governedExposureEligible Boolean @default(false)
+
+  decisionReason String?
+  decisionSnapshotJson Json?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  selectedAt DateTime?
+  supersededAt DateTime?
+
+  @@index([tripBookingIntentId])
+  @@index([operatorRegistryId])
+  @@index([status])
+  @@index([commercialTermsAccepted])
+  @@index([governedExposureEligible])
+}
+
+model TripBookingPaymentReadiness {
+  id String @id @default(cuid())
+
+  tripBookingIntentId String @unique
+  tripBookingIntent TripBookingIntent @relation(fields: [tripBookingIntentId], references: [id], onDelete: Cascade)
+
+  status TripBookingPaymentReadinessStatus @default(NOT_READY)
+
+  paymentProvider String?
+  paymentIntentReference String?
+  currencyCode String @default("PHP")
+  amountDue Decimal? @db.Decimal(12, 2)
+  amountPaid Decimal? @db.Decimal(12, 2)
+
+  readinessReason String?
+  paymentSnapshotJson Json?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  readyAt DateTime?
+  paidAt DateTime?
+  cancelledAt DateTime?
+
+  @@index([status])
+  @@index([paymentIntentReference])
+}
+
+model TripBookingVoucherReadiness {
+  id String @id @default(cuid())
+
+  tripBookingIntentId String @unique
+  tripBookingIntent TripBookingIntent @relation(fields: [tripBookingIntentId], references: [id], onDelete: Cascade)
+
+  status TripBookingVoucherReadinessStatus @default(NOT_READY)
+
+  voucherCode String? @unique
+  qrPayloadRef String?
+  boardingQrReady Boolean @default(false)
+  manifestReady Boolean @default(false)
+  movementRecordRequired Boolean @default(false)
+
+  voucherSnapshotJson Json?
+  qrSnapshotJson Json?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  readyAt DateTime?
+  issuedAt DateTime?
+  voidedAt DateTime?
+
+  @@index([status])
+  @@index([voucherCode])
+  @@index([boardingQrReady])
+  @@index([manifestReady])
+}
