@@ -443,3 +443,188 @@ a {
   border-color: rgba(180, 35, 24, 0.28);
   box-shadow: 0 12px 28px rgba(180, 35, 24, 0.1);
 }
+
+/* =========================================================
+   DINAGAT PASS VISUAL DIRECTION FOUNDATION
+   Soft coastal infrastructure. Official but beautiful.
+   Premium, calm, compact, island-rooted, and operational.
+   ========================================================= */
+
+:root {
+  --dp-deep-blue: #073b5a;
+  --dp-trust-navy: #102a43;
+  --dp-sea-teal: #0e9aa7;
+  --dp-lagoon-mist: #eaf8f7;
+  --dp-pearl-white: #ffffff;
+  --dp-sunrise-gold: #f5b84b;
+  --dp-slate: #52677a;
+  --dp-soft-border: #d9e8ea;
+  --dp-page-shell: #f5fbfb;
+  --dp-card-shadow: 0 18px 45px rgba(16, 42, 67, 0.08);
+  --dp-card-shadow-soft: 0 10px 30px rgba(16, 42, 67, 0.06);
+  --dp-focus-ring: 0 0 0 4px rgba(14, 154, 167, 0.18);
+  --dp-radius-xl: 28px;
+  --dp-radius-lg: 22px;
+  --dp-radius-md: 16px;
+}
+
+.dp-visual-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(14, 154, 167, 0.12), transparent 34rem),
+    radial-gradient(circle at top right, rgba(245, 184, 75, 0.14), transparent 28rem),
+    linear-gradient(180deg, var(--dp-page-shell), var(--dp-pearl-white));
+  color: var(--dp-trust-navy);
+}
+
+.dp-premium-header {
+  border: 1px solid rgba(217, 232, 234, 0.9);
+  border-radius: var(--dp-radius-xl);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(234, 248, 247, 0.88));
+  box-shadow: var(--dp-card-shadow-soft);
+  padding: clamp(18px, 4vw, 32px);
+}
+
+.dp-eyebrow {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(14, 154, 167, 0.16);
+  border-radius: 999px;
+  background: rgba(234, 248, 247, 0.78);
+  color: var(--dp-sea-teal);
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dp-visual-title {
+  margin: 12px 0 0;
+  color: var(--dp-trust-navy);
+  font-size: clamp(26px, 5vw, 44px);
+  font-weight: 780;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+.dp-visual-copy {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  color: var(--dp-slate);
+  font-size: clamp(14px, 2.4vw, 16px);
+  line-height: 1.65;
+}
+
+.dp-trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.dp-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(217, 232, 234, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--dp-trust-navy);
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.dp-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 14px;
+}
+
+.dp-nuclear-card {
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: var(--dp-radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--dp-card-shadow-soft);
+  padding: 18px;
+}
+
+.dp-nuclear-card-title {
+  margin: 0;
+  color: var(--dp-trust-navy);
+  font-size: 17px;
+  font-weight: 780;
+  letter-spacing: -0.025em;
+  line-height: 1.18;
+}
+
+.dp-nuclear-card-copy {
+  margin: 8px 0 0;
+  color: var(--dp-slate);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.dp-primary-action,
+.dp-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-weight: 850;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.dp-primary-action {
+  border: 1px solid rgba(7, 59, 90, 0.12);
+  background: linear-gradient(135deg, var(--dp-deep-blue), var(--dp-sea-teal));
+  color: var(--dp-pearl-white);
+  box-shadow: 0 14px 28px rgba(7, 59, 90, 0.18);
+}
+
+.dp-secondary-action {
+  border: 1px solid rgba(217, 232, 234, 0.95);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--dp-trust-navy);
+}
+
+.dp-primary-action:hover,
+.dp-secondary-action:hover {
+  transform: translateY(-1px);
+}
+
+.dp-primary-action:focus-visible,
+.dp-secondary-action:focus-visible,
+.dp-alert-action:focus-visible {
+  outline: none;
+  box-shadow: var(--dp-focus-ring);
+}
+
+.dp-status-official {
+  color: var(--dp-deep-blue);
+}
+
+.dp-status-review {
+  color: var(--dp-sea-teal);
+}
+
+.dp-status-attention {
+  color: #9a6700;
+}
+
+.dp-sunrise-accent {
+  color: var(--dp-sunrise-gold);
+}
