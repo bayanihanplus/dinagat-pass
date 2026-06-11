@@ -1,110 +1,167 @@
-﻿const travelerActions = [
+﻿const readinessCards = [
   {
-    title: "Trip request",
-    copy: "Request review before confirmation. Backend approval controls booking status.",
-    href: "/traveler/trip-booking",
-    action: "Request trip review",
-    tone: "primary",
+    icon: "ID",
+    title: "Official Pass",
+    copy: "Traveler access stays tied to backend-verified session state.",
   },
   {
-    title: "Official pass readiness",
-    copy: "Traveler access stays tied to backend verification and the official pass layer.",
-    href: "/login?mode=returning",
-    action: "Sign in to continue",
-    tone: "secondary",
+    icon: "TR",
+    title: "Trip Requests",
+    copy: "Start request-to-confirm journeys without claiming approval.",
   },
   {
-    title: "Destination support",
-    copy: "Guided island services will appear only after governed readiness and approval.",
-    href: "/traveler/trip-booking",
-    action: "Review options",
-    tone: "secondary",
+    icon: "RX",
+    title: "Readiness",
+    copy: "Keep traveler actions clear before payment, QR, or fulfillment steps.",
   },
 ];
 
-const readinessChips = [
-  "Backend-owned auth",
-  "Review before confirmation",
-  "Official access after verification",
+const journeySteps = [
+  {
+    step: "1",
+    title: "Open your traveler surface",
+    copy: "This protected home appears only after session verification.",
+  },
+  {
+    step: "2",
+    title: "Prepare a request",
+    copy: "Use trip request flow for backend review and local coordination.",
+  },
+  {
+    step: "3",
+    title: "Wait for confirmed readiness",
+    copy: "Booking, payment, QR, and fulfillment remain system-controlled.",
+  },
+];
+
+const operationsNotes = [
+  {
+    step: "A",
+    title: "No fake confirmation",
+    copy: "The traveler app does not claim booking approval from the browser.",
+  },
+  {
+    step: "B",
+    title: "No QR shortcut",
+    copy: "QR surfaces should appear only when the backend issues or validates them.",
+  },
+  {
+    step: "C",
+    title: "No operator assignment",
+    copy: "Local fulfillment must follow governed readiness and exposure rules.",
+  },
 ];
 
 export default function TravelerHomePage() {
   return (
-    <main className="dp-visual-shell">
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-10">
-        <header className="dp-premium-header">
-          <span className="dp-eyebrow">Dinagat traveler home</span>
-
-          <div className="mt-5 grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
+    <main className="dp-home-shell">
+      <section className="dp-home-frame">
+        <nav className="dp-home-topbar" aria-label="Traveler app status">
+          <div className="dp-home-brand">
+            <span className="dp-home-mark">DP</span>
             <div>
-              <h1 className="dp-visual-title">
-                Your calm entry point to Dinagat Pass.
-              </h1>
-              <p className="dp-visual-copy">
-                A premium traveler shell for trip requests, official access readiness,
-                and destination support. Confirmation, payment readiness, and access
-                permissions stay backend-owned.
-              </p>
-            </div>
-
-            <div className="rounded-[22px] border border-[rgba(217,232,234,0.95)] bg-white/85 p-4 shadow-[var(--dp-card-shadow-soft)]">
-              <p className="m-0 text-xs font-black uppercase tracking-[0.12em] text-[var(--dp-sea-teal)]">
-                Trust boundary
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--dp-trust-navy)]">
-                Frontend authority: false
-              </p>
-              <p className="mt-1 text-sm leading-6 text-[var(--dp-slate)]">
-                Traveler actions remain guided until backend review and verification are ready.
-              </p>
+              <p className="dp-home-brand-title">Dinagat Pass Traveler</p>
+              <p className="dp-home-brand-copy">Protected island journey surface</p>
             </div>
           </div>
 
-          <div className="dp-trust-strip">
-            {readinessChips.map((chip) => (
-              <span className="dp-trust-chip" key={chip}>
-                {chip}
+          <span className="dp-home-status-pill">Backend session required</span>
+        </nav>
+
+        <section className="dp-home-hero">
+          <header className="dp-home-panel dp-home-hero-main">
+            <div className="dp-home-hero-content">
+              <span className="dp-eyebrow">Traveler home</span>
+              <h1 className="dp-home-title">Your official Dinagat journey starts here.</h1>
+              <p className="dp-home-copy">
+                A premium traveler dashboard for pass readiness, trip requests, and
+                protected island actions. Final booking, payment, QR, and fulfillment
+                decisions stay under backend control.
+              </p>
+
+              <div className="dp-home-actions">
+                <a className="dp-primary-action" href="/traveler/trip-booking">
+                  Start trip request
+                </a>
+                <a className="dp-secondary-action" href="/login?mode=returning">
+                  Return to access
+                </a>
+              </div>
+            </div>
+          </header>
+
+          <aside className="dp-home-panel dp-home-side" aria-label="Pass readiness">
+            <article className="dp-home-pass-card">
+              <p className="dp-home-kicker">Official pass state</p>
+              <h2 className="dp-home-card-title">Session-gated traveler app</h2>
+              <p className="dp-home-card-copy">
+                This surface should only be reached after backend session verification.
+              </p>
+            </article>
+
+            <article className="dp-home-alert">
+              <strong>No browser-side approval</strong>
+              <span>
+                The app can guide the traveler, but it must not create fake payment,
+                booking, QR, or operator-assignment states.
               </span>
-            ))}
-          </div>
-        </header>
+            </article>
+          </aside>
+        </section>
 
-        <section className="dp-card-grid" aria-label="Traveler actions">
-          {travelerActions.map((item) => (
-            <article className="dp-nuclear-card" key={item.title}>
-              <p className="dp-nuclear-card-title">{item.title}</p>
-              <p className="dp-nuclear-card-copy">{item.copy}</p>
-              <a
-                className={
-                  item.tone === "primary"
-                    ? "dp-primary-action mt-5"
-                    : "dp-secondary-action mt-5"
-                }
-                href={item.href}
-              >
-                {item.action}
-              </a>
+        <section className="dp-home-readiness-grid" aria-label="Traveler readiness cards">
+          {readinessCards.map((item) => (
+            <article className="dp-home-mini-card" key={item.title}>
+              <span className="dp-home-mini-icon">{item.icon}</span>
+              <h2 className="dp-home-mini-title">{item.title}</h2>
+              <p className="dp-home-mini-copy">{item.copy}</p>
             </article>
           ))}
         </section>
 
-        <section className="dp-nuclear-card">
-          <div className="grid gap-4 md:grid-cols-[0.7fr_1.3fr] md:items-center">
-            <div>
-              <p className="dp-eyebrow">Operating doctrine</p>
-              <h2 className="dp-nuclear-card-title mt-3">
-                Official, simple, and backend-governed.
-              </h2>
-            </div>
-
-            <p className="dp-nuclear-card-copy md:mt-0">
-              Dinagat Pass should feel like island infrastructure: calm traveler guidance,
-              clear review states, and no frontend-owned confirmation, payment, or access authority.
+        <section className="dp-home-section-grid">
+          <article className="dp-home-panel dp-side-panel">
+            <p className="dp-home-kicker">Traveler flow</p>
+            <h2 className="dp-section-title">Clear next actions.</h2>
+            <p className="dp-section-copy">
+              Keep the traveler moving without inventing backend-owned outcomes.
             </p>
-          </div>
+
+            <div className="dp-home-list">
+              {journeySteps.map((item) => (
+                <div className="dp-home-list-item" key={item.step}>
+                  <span className="dp-home-list-dot">{item.step}</span>
+                  <div>
+                    <p className="dp-home-list-title">{item.title}</p>
+                    <p className="dp-home-list-copy">{item.copy}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="dp-home-panel dp-side-panel">
+            <p className="dp-home-kicker">Governance guardrails</p>
+            <h2 className="dp-section-title">System authority preserved.</h2>
+            <p className="dp-section-copy">
+              The dashboard stays premium and useful without bypassing controlled
+              booking and fulfillment logic.
+            </p>
+
+            <div className="dp-home-list">
+              {operationsNotes.map((item) => (
+                <div className="dp-home-list-item" key={item.step}>
+                  <span className="dp-home-list-dot">{item.step}</span>
+                  <div>
+                    <p className="dp-home-list-title">{item.title}</p>
+                    <p className="dp-home-list-copy">{item.copy}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
         </section>
       </section>
     </main>
   );
 }
-

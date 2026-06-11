@@ -925,3 +925,327 @@ a {
     border-radius: 26px;
   }
 }
+
+/* DINAGAT PASS TRAVELER HOME PREMIUM APP SHELL */
+.dp-home-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 8%, rgba(14, 154, 167, 0.12), transparent 28%),
+    radial-gradient(circle at 92% 12%, rgba(245, 184, 75, 0.13), transparent 26%),
+    linear-gradient(135deg, #f7fcfc 0%, #eefafa 48%, #ffffff 100%);
+  color: var(--dp-trust-navy);
+  padding: 22px;
+}
+
+.dp-home-frame {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.dp-home-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 20px 58px rgba(7, 59, 90, 0.1);
+  padding: 14px 16px;
+}
+
+.dp-home-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dp-home-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--dp-deep-blue);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 950;
+  box-shadow: 0 14px 28px rgba(7, 59, 90, 0.2);
+}
+
+.dp-home-brand-title {
+  margin: 0;
+  color: var(--dp-trust-navy);
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.025em;
+}
+
+.dp-home-brand-copy {
+  margin: 2px 0 0;
+  color: var(--dp-slate);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.dp-home-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid rgba(14, 154, 167, 0.22);
+  border-radius: 999px;
+  background: rgba(234, 248, 247, 0.78);
+  color: var(--dp-trust-navy);
+  padding: 0 13px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dp-home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.55fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.dp-home-panel {
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 28px 90px rgba(7, 59, 90, 0.13);
+  overflow: hidden;
+}
+
+.dp-home-hero-main {
+  position: relative;
+  padding: clamp(26px, 5vw, 52px);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.94), rgba(234,248,247,0.88)),
+    radial-gradient(circle at 82% 22%, rgba(14,154,167,0.14), transparent 28%);
+}
+
+.dp-home-hero-main::after {
+  content: "";
+  position: absolute;
+  right: -84px;
+  bottom: -96px;
+  width: 270px;
+  height: 270px;
+  border-radius: 999px;
+  background: rgba(245, 184, 75, 0.16);
+}
+
+.dp-home-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 690px;
+}
+
+.dp-home-title {
+  margin: 12px 0 0;
+  color: var(--dp-trust-navy);
+  font-size: clamp(38px, 6vw, 74px);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+  font-weight: 950;
+}
+
+.dp-home-copy {
+  margin: 18px 0 0;
+  color: var(--dp-slate);
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.7;
+  max-width: 620px;
+}
+
+.dp-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.dp-home-side {
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+  align-content: stretch;
+}
+
+.dp-home-pass-card {
+  border: 1px solid rgba(217, 232, 234, 0.95);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 18px;
+  box-shadow: 0 18px 42px rgba(7, 59, 90, 0.08);
+}
+
+.dp-home-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dp-sea-teal);
+}
+
+.dp-home-card-title {
+  margin: 8px 0 0;
+  color: var(--dp-trust-navy);
+  font-size: 21px;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 950;
+}
+
+.dp-home-card-copy {
+  margin: 9px 0 0;
+  color: var(--dp-slate);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.dp-home-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dp-home-mini-card {
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 16px 44px rgba(7, 59, 90, 0.08);
+  padding: 16px;
+}
+
+.dp-home-mini-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(14, 154, 167, 0.12);
+  color: var(--dp-deep-blue);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.dp-home-mini-title {
+  margin: 12px 0 0;
+  color: var(--dp-trust-navy);
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.dp-home-mini-copy {
+  margin: 6px 0 0;
+  color: var(--dp-slate);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dp-home-section-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.68fr) minmax(0, 0.82fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dp-home-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.dp-home-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 22px;
+  background: rgba(234, 248, 247, 0.52);
+  padding: 14px;
+}
+
+.dp-home-list-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--dp-deep-blue);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 950;
+  flex: 0 0 auto;
+}
+
+.dp-home-list-title {
+  margin: 0;
+  color: var(--dp-trust-navy);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.dp-home-list-copy {
+  margin: 3px 0 0;
+  color: var(--dp-slate);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.dp-home-alert {
+  border: 1px solid rgba(245, 184, 75, 0.36);
+  border-radius: 24px;
+  background: rgba(245, 184, 75, 0.12);
+  padding: 16px;
+  color: var(--dp-trust-navy);
+}
+
+.dp-home-alert strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.dp-home-alert span {
+  display: block;
+  color: var(--dp-slate);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .dp-home-shell {
+    padding: 14px;
+  }
+
+  .dp-home-topbar,
+  .dp-home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dp-home-topbar {
+    align-items: flex-start;
+  }
+
+  .dp-home-hero,
+  .dp-home-section-grid,
+  .dp-home-readiness-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dp-home-panel,
+  .dp-home-hero-main {
+    border-radius: 26px;
+  }
+}
