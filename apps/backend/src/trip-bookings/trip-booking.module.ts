@@ -1,10 +1,14 @@
-﻿import { Module } from '@nestjs/common';
-import { TripBookingReadinessController } from './controllers';
-import { TripBookingReadinessService } from './services';
+import { Module } from '@nestjs/common';
+
+import { AuthModule } from '../auth/auth.module';
+import { TripBookingIntentController } from './controllers/trip-booking-intent.controller';
+import { TripBookingReadinessController } from './controllers/trip-booking-readiness.controller';
+import { TripBookingIntentService } from './services/trip-booking-intent.service';
+import { TripBookingReadinessService } from './services/trip-booking-readiness.service';
 
 @Module({
-  controllers: [TripBookingReadinessController],
-  providers: [TripBookingReadinessService],
-  exports: [TripBookingReadinessService],
+  imports: [AuthModule],
+  controllers: [TripBookingReadinessController, TripBookingIntentController],
+  providers: [TripBookingReadinessService, TripBookingIntentService],
 })
 export class TripBookingModule {}
