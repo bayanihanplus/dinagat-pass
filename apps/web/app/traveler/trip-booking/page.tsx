@@ -1,110 +1,56 @@
-﻿'use client';
+﻿"use client";
 
-import { FormEvent, useMemo, useState } from 'react';
-
-type RequestState = 'idle' | 'submitting' | 'submitted' | 'error';
+import { useState } from "react";
 
 type BookingResponse = {
   bookingCode?: string;
   status?: string;
-  backendOwned?: boolean;
-  frontendMayOnlyRequestIntent?: boolean;
-  fakeBookingAllowed?: boolean;
   message?: string;
 };
 
-function getTravelerSafeBookingError(status: number, message?: string): string {
-  const normalizedMessage = message?.toLowerCase() ?? '';
-
-  if (
-    status === 401 ||
-    status === 403 ||
-    normalizedMessage.includes('forbidden') ||
-    normalizedMessage.includes('unauthorized')
-  ) {
-    return 'Please sign in before requesting backend review.';
+function getTravelerSafeBookingError(status: number, message?: string) {
+  if (status === 401 || status === 403) {
+    return "Please sign in before requesting backend review.";
   }
 
-  if (status >= 500) {
-    return 'The booking service is online but could not review this request yet. Please try again shortly.';
+  if (message) {
+    return message;
   }
 
-  return message || 'Booking request was not accepted. Please check the details and try again.';
+  return "Trip request could not be sent. Please review your details and try again.";
 }
 
-const productTypes = [
-  {
-    value: 'GOVERNED_TOUR',
-    label: 'Governed tour request',
-    helper: 'For reviewed island routes, guided stops, or coordinated local services.',
-  },
-  {
-    value: 'SITE_ACCESS_SUPPORT',
-    label: 'Site access support',
-    helper: 'For access points, visit coordination, or controlled entry support.',
-  },
-  {
-    value: 'LOCAL_SERVICE_REQUEST',
-    label: 'Local service request',
-    helper: 'For local partner support where approval and confirmation are required.',
-  },
-];
-
-const pricingModes = [
-  {
-    value: 'REQUEST_TO_CONFIRM',
-    label: 'Request to confirm',
-    helper: 'Best for MVP. Backend reviews availability, readiness, and terms before payment.',
-  },
-  {
-    value: 'PRICE_TO_CONFIRM',
-    label: 'Price to confirm',
-    helper: 'Use when the traveler needs a quoted price before checkout.',
-  },
-];
-
 export default function TravelerTripBookingPage() {
-  const [productType, setProductType] = useState(productTypes[0]?.value ?? 'GOVERNED_TOUR');
-  const [pricingMode, setPricingMode] = useState(pricingModes[0]?.value ?? 'REQUEST_TO_CONFIRM');
-  const [title, setTitle] = useState('Dinagat trip request');
-  const [notes, setNotes] = useState('');
-  const [state, setState] = useState<RequestState>('idle');
-  const [error, setError] = useState('');
+  const [title, setTitle] = useState("Dinagat trip request");
+  const [notes, setNotes] = useState(
+    "I want to request backend review for a Dinagat travel service.",
+  );
+  const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [error, setError] = useState("");
   const [showSignInCta, setShowSignInCta] = useState(false);
   const [result, setResult] = useState<BookingResponse | null>(null);
 
-  const selectedProduct = useMemo(
-    () => productTypes.find((item) => item.value === productType) ?? productTypes[0],
-    [productType],
-  );
-
-  const selectedPricing = useMemo(
-    () => pricingModes.find((item) => item.value === pricingMode) ?? pricingModes[0],
-    [pricingMode],
-  );
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    setState('submitting');
-    setError('');
+  async function submitIntent() {
+    setState("loading");
+    setError("");
     setShowSignInCta(false);
     setResult(null);
 
     try {
-      const response = await fetch('/api/trip-bookings/intent', {
-        method: 'POST',
+      const response = await fetch("/api/trip-bookings/intent", {
+        method: "POST",
         headers: {
-          'content-type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
-          productType,
-          pricingMode,
-          title: title.trim() || 'Dinagat trip request',
+          productType: "GOVERNED_TOUR",
+          pricingMode: "REQUEST_TO_CONFIRM",
+          title,
           travelerRequestJson: {
-            notes: notes.trim(),
-            source: 'traveler-trip-booking-frontend-foundation',
+            notes,
+            source: "traveler-trip-booking-page",
+            frontendAuthority: false,
           },
         }),
       });
@@ -112,108 +58,96 @@ export default function TravelerTripBookingPage() {
       const data = (await response.json().catch(() => null)) as BookingResponse | null;
 
       if (!response.ok) {
-        setState('error');
         setError(getTravelerSafeBookingError(response.status, data?.message));
         setShowSignInCta(response.status === 401 || response.status === 403);
+        setState("error");
         return;
       }
 
       setResult(data);
-      setState('submitted');
+      setState("success");
     } catch {
-      setState('error');
-      setError('Could not reach the booking service. Please try again when the backend is running.');
+      setError("Trip request could not be sent. Please check the local server and try again.");
+      setState("error");
     }
   }
 
   return (
-    <main className="dp-booking-shell">
-      <section className="dp-booking-wrap">
-        <div className="dp-booking-hero">
-          <div className="dp-booking-hero-grid">
+    <main className="dp-visual-shell">
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-10">
+        <header className="dp-premium-header">
+          <span className="dp-eyebrow">Trip request review</span>
+
+          <div className="mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
-              <div className="dp-kicker">Dinagat Pass Trip Request</div>
-              <h1 className="dp-title">Request a governed trip.</h1>
-              <p className="dp-lede">
-                Submit intent only. Dinagat Pass checks route readiness, partner terms, pricing,
-                and confirmation before any payment or QR is issued.
+              <h1 className="dp-visual-title">
+                Request backend review before any trip confirmation.
+              </h1>
+              <p className="dp-visual-copy">
+                Dinagat Pass keeps booking status, payment readiness, and official access
+                permissions backend-governed. This page only submits a traveler request for review.
               </p>
             </div>
 
-            <div className="dp-authority-card">
-              <p className="dp-authority-title">Backend-owned booking</p>
-              <p className="dp-authority-copy">
-                No fake confirmation. No operator dump. No frontend-owned payment.
+            <div className="rounded-[22px] border border-[rgba(217,232,234,0.95)] bg-white/85 p-4 shadow-[var(--dp-card-shadow-soft)]">
+              <p className="m-0 text-xs font-black uppercase tracking-[0.12em] text-[var(--dp-sea-teal)]">
+                Authority boundary
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--dp-trust-navy)]">
+                Frontend authority: false
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[var(--dp-slate)]">
+                No frontend-owned confirmation, payment, QR, or operator assignment.
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="dp-booking-grid">
-          <form onSubmit={handleSubmit} className="dp-panel">
-            <div>
-              <h2 className="dp-panel-title">Trip request details</h2>
-              <p className="dp-panel-copy">
-                Keep it direct. The backend will decide whether this can move to payment readiness.
-              </p>
-            </div>
+          <div className="dp-trust-strip">
+            <span className="dp-trust-chip">Submit intent only</span>
+            <span className="dp-trust-chip">Backend-owned booking</span>
+            <span className="dp-trust-chip">No operator dump</span>
+            <span className="dp-trust-chip">No frontend-owned payment</span>
+          </div>
+        </header>
 
-            <div className="dp-form-grid">
-              <label className="dp-field">
-                <span className="dp-label">Request title</span>
-                <input
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  className="dp-input"
-                  placeholder="Example: Sunday Dinagat island route request"
-                />
-              </label>
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <form
+            className="dp-nuclear-card"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submitIntent();
+            }}
+          >
+            <p className="dp-eyebrow">Request details</p>
 
-              <label className="dp-field">
-                <span className="dp-label">Request type</span>
-                <select
-                  value={productType}
-                  onChange={(event) => setProductType(event.target.value)}
-                  className="dp-select"
-                >
-                  {productTypes.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="dp-helper">{selectedProduct?.helper}</span>
-              </label>
+            <label className="mt-5 block">
+              <span className="text-sm font-black text-[var(--dp-trust-navy)]">
+                Request title
+              </span>
+              <input
+                className="mt-2 w-full rounded-[18px] border border-[rgba(217,232,234,0.95)] bg-white px-4 py-3 text-sm font-semibold text-[var(--dp-trust-navy)] outline-none transition focus:shadow-[var(--dp-focus-ring)]"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </label>
 
-              <label className="dp-field">
-                <span className="dp-label">Pricing mode</span>
-                <select
-                  value={pricingMode}
-                  onChange={(event) => setPricingMode(event.target.value)}
-                  className="dp-select"
-                >
-                  {pricingModes.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="dp-helper">{selectedPricing?.helper}</span>
-              </label>
+            <label className="mt-5 block">
+              <span className="text-sm font-black text-[var(--dp-trust-navy)]">
+                Traveler notes
+              </span>
+              <textarea
+                className="mt-2 min-h-36 w-full rounded-[18px] border border-[rgba(217,232,234,0.95)] bg-white px-4 py-3 text-sm font-semibold leading-6 text-[var(--dp-trust-navy)] outline-none transition focus:shadow-[var(--dp-focus-ring)]"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+              />
+            </label>
 
-              <label className="dp-field">
-                <span className="dp-label">Notes</span>
-                <textarea
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  className="dp-textarea"
-                  placeholder="Preferred date, pax count, route idea, pickup area, or special needs."
-                />
-              </label>
-            </div>
+            <button className="dp-primary-action mt-5" disabled={state === "loading"} type="submit">
+              {state === "loading" ? "Requesting review..." : "Request backend review"}
+            </button>
 
-            {state === 'error' ? (
-              <div className="dp-alert dp-alert-error">
+            {state === "error" ? (
+              <div className="dp-alert dp-alert-error mt-5">
                 <p className="dp-alert-title">{error}</p>
                 {showSignInCta ? (
                   <a className="dp-alert-action" href="/login">
@@ -223,59 +157,47 @@ export default function TravelerTripBookingPage() {
               </div>
             ) : null}
 
-            {state === 'submitted' ? (
-              <div className="dp-alert dp-alert-success">
-                <p className="dp-alert-title">Request received by backend.</p>
-                <p className="dp-alert-copy">
-                  Booking code: {result?.bookingCode || 'Pending backend response'}
+            {state === "success" ? (
+              <div className="mt-5 rounded-[20px] border border-[rgba(14,154,167,0.2)] bg-[rgba(234,248,247,0.72)] p-4">
+                <p className="m-0 text-sm font-black text-[var(--dp-sea-teal)]">
+                  Request sent for backend review.
                 </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--dp-slate)]">
+                  Status: {result?.status ?? "Review pending"}
+                </p>
+                {result?.bookingCode ? (
+                  <p className="mt-1 text-sm leading-6 text-[var(--dp-slate)]">
+                    Reference: {result.bookingCode}
+                  </p>
+                ) : null}
               </div>
             ) : null}
-
-            <button type="submit" disabled={state === 'submitting'} className="dp-submit">
-              {state === 'submitting' ? 'Requesting backend review...' : 'Request backend review'}
-            </button>
           </form>
 
-          <aside className="dp-aside">
-            <div className="dp-panel">
-              <h2 className="dp-panel-title">What happens next</h2>
-              <div className="dp-step-list">
-                <div className="dp-step">
-                  <p className="dp-step-title">1. Intent only</p>
-                  <p className="dp-step-copy">
-                    Traveler submits a request. No booking is confirmed here.
-                  </p>
-                </div>
-                <div className="dp-step">
-                  <p className="dp-step-title">2. Backend review</p>
-                  <p className="dp-step-copy">
-                    Readiness, terms, route, pricing, and fulfillment are checked server-side.
-                  </p>
-                </div>
-                <div className="dp-step">
-                  <p className="dp-step-title">3. Confirmation path</p>
-                  <p className="dp-step-copy">
-                    Payment or QR logic opens only after backend readiness allows it.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <aside className="flex flex-col gap-4">
+            <article className="dp-nuclear-card">
+              <p className="dp-nuclear-card-title">What this page does</p>
+              <p className="dp-nuclear-card-copy">
+                It sends a request intent to the backend through the local proxy with cookies included.
+              </p>
+            </article>
 
-            <div className="dp-guardrail-panel">
-              <p className="dp-guardrail-kicker">MVP guardrails</p>
-              <div className="dp-guardrails">
-                <span className="dp-guardrail">No fake payment</span>
-                <span className="dp-guardrail">No fake QR</span>
-                <span className="dp-guardrail">No public operator dump</span>
-                <span className="dp-guardrail">No frontend-owned auth</span>
-              </div>
-            </div>
+            <article className="dp-nuclear-card">
+              <p className="dp-nuclear-card-title">What this page does not do</p>
+              <p className="dp-nuclear-card-copy">
+                It does not approve bookings, open payment, issue QR access, or assign operators.
+              </p>
+            </article>
+
+            <article className="dp-nuclear-card">
+              <p className="dp-nuclear-card-title">Expected logged-out state</p>
+              <p className="dp-nuclear-card-copy">
+                Backend auth guard should return 403 and show a safe sign-in action.
+              </p>
+            </article>
           </aside>
-        </div>
+        </section>
       </section>
     </main>
   );
 }
-
-
