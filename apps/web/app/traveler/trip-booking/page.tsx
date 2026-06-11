@@ -1,201 +1,187 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
-type BookingResponse = {
+type SubmitState = "idle" | "loading" | "success" | "error";
+
+type IntentResponse = {
+  ok?: boolean;
+  message?: string;
   bookingCode?: string;
   status?: string;
-  message?: string;
 };
 
-function getTravelerSafeBookingError(status: number, message?: string) {
-  if (status === 401 || status === 403) {
-    return "Please sign in before requesting backend review.";
-  }
+const tripPills = ["Request to confirm", "Backend review", "Local fulfillment"];
 
-  if (message) {
-    return message;
-  }
-
-  return "Trip request could not be sent. Please review your details and try again.";
-}
+const flowItems = [
+  {
+    step: "1",
+    title: "Send request",
+    copy: "Share the trip window, group size, and destination needs.",
+  },
+  {
+    step: "2",
+    title: "Review readiness",
+    copy: "The backend keeps confirmation and pricing authority.",
+  },
+  {
+    step: "3",
+    title: "Coordinate locally",
+    copy: "Approved fulfillment is handled through governed local participation.",
+  },
+];
 
 export default function TravelerTripBookingPage() {
-  const [title, setTitle] = useState("Dinagat trip request");
-  const [notes, setNotes] = useState(
-    "I want to request backend review for a Dinagat travel service.",
-  );
-  const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [error, setError] = useState("");
+  const [title, setTitle] = useState("Dinagat guided trip request");
+  const [notes, setNotes] = useState("");
+  const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [message, setMessage] = useState("");
+  const [bookingCode, setBookingCode] = useState("");
   const [showSignInCta, setShowSignInCta] = useState(false);
-  const [result, setResult] = useState<BookingResponse | null>(null);
 
-  async function submitIntent() {
-    setState("loading");
-    setError("");
+  async function submitIntent(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setSubmitState("loading");
+    setMessage("");
+    setBookingCode("");
     setShowSignInCta(false);
-    setResult(null);
 
     try {
       const response = await fetch("/api/trip-bookings/intent", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
         body: JSON.stringify({
           productType: "GOVERNED_TOUR",
           pricingMode: "REQUEST_TO_CONFIRM",
           title,
           travelerRequestJson: {
             notes,
-            source: "traveler-trip-booking-page",
+            source: "traveler-trip-booking-premium-recovery",
             frontendAuthority: false,
           },
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as BookingResponse | null;
+      const data = (await response.json().catch(() => null)) as IntentResponse | null;
 
       if (!response.ok) {
-        setError(getTravelerSafeBookingError(response.status, data?.message));
+        const safeMessage =
+          response.status === 401 || response.status === 403
+            ? "Please sign in before requesting backend review."
+            : data?.message || "Trip request could not be submitted.";
+
+        setSubmitState("error");
+        setMessage(safeMessage);
         setShowSignInCta(response.status === 401 || response.status === 403);
-        setState("error");
         return;
       }
 
-      setResult(data);
-      setState("success");
+      setSubmitState("success");
+      setMessage(data?.message || "Your trip request was received for backend review.");
+      setBookingCode(data?.bookingCode || "");
     } catch {
-      setError("Trip request could not be sent. Please check the local server and try again.");
-      setState("error");
+      setSubmitState("error");
+      setMessage("Trip request service is not reachable right now.");
     }
   }
 
   return (
-    <main className="dp-visual-shell">
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-10">
-        <header className="dp-premium-header">
-          <span className="dp-eyebrow">Trip request review</span>
+    <main className="dp-app-stage">
+      <section className="dp-trip-grid">
+        <header className="dp-glass-panel dp-hero-panel">
+          <div className="dp-hero-content">
+            <span className="dp-eyebrow">Dinagat trip request</span>
+            <h1 className="dp-visual-title">
+              Request the journey. Confirm through the system.
+            </h1>
+            <p className="dp-visual-copy">
+              A guided request surface for island trips, built to keep booking,
+              payment readiness, and fulfillment decisions under backend control.
+            </p>
 
-          <div className="mt-5 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-            <div>
-              <h1 className="dp-visual-title">
-                Request backend review before any trip confirmation.
-              </h1>
-              <p className="dp-visual-copy">
-                Dinagat Pass keeps booking status, payment readiness, and official access
-                permissions backend-governed. This page only submits a traveler request for review.
-              </p>
+            <div className="dp-pill-row">
+              {tripPills.map((item) => (
+                <span className="dp-mini-pill" key={item}>
+                  {item}
+                </span>
+              ))}
             </div>
 
-            <div className="rounded-[22px] border border-[rgba(217,232,234,0.95)] bg-white/85 p-4 shadow-[var(--dp-card-shadow-soft)]">
-              <p className="m-0 text-xs font-black uppercase tracking-[0.12em] text-[var(--dp-sea-teal)]">
-                Authority boundary
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-[var(--dp-trust-navy)]">
-                Frontend authority: false
-              </p>
-              <p className="mt-1 text-sm leading-6 text-[var(--dp-slate)]">
-                No frontend-owned confirmation, payment, QR, or operator assignment.
-              </p>
+            <div className="dp-flow-list">
+              {flowItems.map((item) => (
+                <article className="dp-flow-item" key={item.step}>
+                  <span className="dp-flow-dot">{item.step}</span>
+                  <div>
+                    <p className="dp-flow-title">{item.title}</p>
+                    <p className="dp-flow-copy">{item.copy}</p>
+                  </div>
+                </article>
+              ))}
             </div>
-          </div>
-
-          <div className="dp-trust-strip">
-            <span className="dp-trust-chip">Submit intent only</span>
-            <span className="dp-trust-chip">Backend-owned booking</span>
-            <span className="dp-trust-chip">No operator dump</span>
-            <span className="dp-trust-chip">No frontend-owned payment</span>
           </div>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <form
-            className="dp-nuclear-card"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submitIntent();
-            }}
-          >
-            <p className="dp-eyebrow">Request details</p>
+        <section className="dp-form-panel">
+          <p className="dp-card-kicker">Request details</p>
+          <h2 className="dp-section-title">Send for review.</h2>
+          <p className="dp-section-copy">
+            Add the minimum details needed to begin review. This does not create a
+            confirmed booking.
+          </p>
 
-            <label className="mt-5 block">
-              <span className="text-sm font-black text-[var(--dp-trust-navy)]">
-                Request title
-              </span>
+          <form className="dp-form-shell" onSubmit={submitIntent}>
+            <label className="dp-field">
+              <span className="dp-field-label">Trip title</span>
               <input
-                className="mt-2 w-full rounded-[18px] border border-[rgba(217,232,234,0.95)] bg-white px-4 py-3 text-sm font-semibold text-[var(--dp-trust-navy)] outline-none transition focus:shadow-[var(--dp-focus-ring)]"
+                className="dp-input"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
+                placeholder="Dinagat guided trip request"
               />
             </label>
 
-            <label className="mt-5 block">
-              <span className="text-sm font-black text-[var(--dp-trust-navy)]">
-                Traveler notes
-              </span>
+            <label className="dp-field">
+              <span className="dp-field-label">Traveler notes</span>
               <textarea
-                className="mt-2 min-h-36 w-full rounded-[18px] border border-[rgba(217,232,234,0.95)] bg-white px-4 py-3 text-sm font-semibold leading-6 text-[var(--dp-trust-navy)] outline-none transition focus:shadow-[var(--dp-focus-ring)]"
+                className="dp-textarea"
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
+                placeholder="Travel dates, group size, preferred islands, pickup needs, and special requests."
               />
             </label>
 
-            <button className="dp-primary-action mt-5" disabled={state === "loading"} type="submit">
-              {state === "loading" ? "Requesting review..." : "Request backend review"}
+            <button
+              className="dp-primary-action"
+              disabled={submitState === "loading"}
+              type="submit"
+            >
+              {submitState === "loading" ? "Sending request..." : "Request backend review"}
             </button>
-
-            {state === "error" ? (
-              <div className="dp-alert dp-alert-error mt-5">
-                <p className="dp-alert-title">{error}</p>
-                {showSignInCta ? (
-                  <a className="dp-alert-action" href="/login">
-                    Sign in to continue
-                  </a>
-                ) : null}
-              </div>
-            ) : null}
-
-            {state === "success" ? (
-              <div className="mt-5 rounded-[20px] border border-[rgba(14,154,167,0.2)] bg-[rgba(234,248,247,0.72)] p-4">
-                <p className="m-0 text-sm font-black text-[var(--dp-sea-teal)]">
-                  Request sent for backend review.
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--dp-slate)]">
-                  Status: {result?.status ?? "Review pending"}
-                </p>
-                {result?.bookingCode ? (
-                  <p className="mt-1 text-sm leading-6 text-[var(--dp-slate)]">
-                    Reference: {result.bookingCode}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
           </form>
 
-          <aside className="flex flex-col gap-4">
-            <article className="dp-nuclear-card">
-              <p className="dp-nuclear-card-title">What this page does</p>
-              <p className="dp-nuclear-card-copy">
-                It sends a request intent to the backend through the local proxy with cookies included.
-              </p>
-            </article>
+          {message ? (
+            <div className="dp-status-box">
+              <p className="dp-status-title">{message}</p>
 
-            <article className="dp-nuclear-card">
-              <p className="dp-nuclear-card-title">What this page does not do</p>
-              <p className="dp-nuclear-card-copy">
-                It does not approve bookings, open payment, issue QR access, or assign operators.
-              </p>
-            </article>
+              {bookingCode ? (
+                <p className="dp-status-copy">
+                  Reference: <strong>{bookingCode}</strong>
+                </p>
+              ) : null}
 
-            <article className="dp-nuclear-card">
-              <p className="dp-nuclear-card-title">Expected logged-out state</p>
-              <p className="dp-nuclear-card-copy">
-                Backend auth guard should return 403 and show a safe sign-in action.
-              </p>
-            </article>
-          </aside>
+              {showSignInCta ? (
+                <div className="dp-action-row">
+                  <a className="dp-secondary-action" href="/login?mode=returning&reason=auth-required">
+                    Sign in to continue
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </section>
       </section>
     </main>
