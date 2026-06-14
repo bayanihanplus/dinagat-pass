@@ -3445,3 +3445,196 @@ a {
     transform: none;
   }
 }
+
+/* DINAGAT PASS TRAVELER SETTINGS TRUE MOBILE APP UI */
+.dp-settings-hero {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(14, 154, 167, 0.16);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(245, 184, 75, 0.18), transparent 30%),
+    linear-gradient(145deg, rgba(7, 59, 90, 0.97), rgba(16, 42, 67, 0.95));
+  color: #ffffff;
+  box-shadow: 0 20px 50px rgba(7, 59, 90, 0.22);
+}
+
+.dp-settings-kicker,
+.dp-settings-profile-copy p,
+.dp-settings-mini-card p,
+.dp-settings-section-head p {
+  margin: 0;
+  color: #0e9aa7;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dp-settings-hero .dp-settings-kicker {
+  color: #f5b84b;
+}
+
+.dp-settings-hero h1,
+.dp-settings-profile-copy h2,
+.dp-settings-mini-card h2,
+.dp-settings-section-head h2 {
+  margin: 0;
+  color: #102a43;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.dp-settings-hero h1 {
+  max-width: 300px;
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+.dp-settings-hero p,
+.dp-settings-profile-copy span,
+.dp-settings-mini-card span {
+  margin: 0;
+  color: rgba(82, 103, 122, 0.92);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.dp-settings-hero p {
+  max-width: 320px;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.dp-settings-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(217, 232, 234, 0.98);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(16, 42, 67, 0.08);
+}
+
+.dp-settings-profile-card {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  background:
+    radial-gradient(circle at 90% 12%, rgba(14, 154, 167, 0.12), transparent 30%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.dp-settings-avatar {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #073b5a, #102a43);
+  box-shadow: 0 16px 30px rgba(7, 59, 90, 0.22);
+}
+
+.dp-settings-avatar span {
+  color: #f5b84b;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.dp-settings-profile-copy,
+.dp-settings-section-head,
+.dp-settings-mini-card div {
+  display: grid;
+  gap: 6px;
+}
+
+.dp-settings-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.dp-settings-mini-card {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.dp-settings-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dp-settings-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 10px;
+  border: 1px solid rgba(14, 154, 167, 0.18);
+  border-radius: 999px;
+  background: rgba(234, 248, 247, 0.76);
+  color: #073b5a;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.dp-settings-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.dp-settings-action,
+.dp-settings-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 18px;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dp-settings-action {
+  background: linear-gradient(135deg, #0e9aa7, #073b5a);
+  color: #ffffff;
+  box-shadow: 0 16px 30px rgba(14, 154, 167, 0.24);
+}
+
+.dp-settings-secondary {
+  border: 1px solid rgba(14, 154, 167, 0.2);
+  background: rgba(234, 248, 247, 0.78);
+  color: #073b5a;
+}
+
+.dp-settings-action:hover,
+.dp-settings-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.dp-settings-action:focus-visible,
+.dp-settings-secondary:focus-visible {
+  outline: 3px solid rgba(245, 184, 75, 0.5);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-settings-action,
+  .dp-settings-secondary {
+    transition: none;
+  }
+
+  .dp-settings-action:hover,
+  .dp-settings-secondary:hover {
+    transform: none;
+  }
+}
