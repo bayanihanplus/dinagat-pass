@@ -20,7 +20,7 @@ const navItems = [
     key: "requests",
     icon: "\u25A4",
     label: "Requests",
-    href: "/traveler/trip-booking",
+    href: "/traveler/requests",
   },
   {
     key: "pass",
@@ -87,3 +87,4 @@ export function TravelerBottomNav({ activeTab = "home" }: TravelerBottomNavProps
     </nav>
   );
 }
+
