@@ -2964,3 +2964,263 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* DINAGAT PASS TRAVELER PASS TRUE MOBILE APP UI */
+.dp-pass-app-hero {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(14, 154, 167, 0.16);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(245, 184, 75, 0.2), transparent 31%),
+    linear-gradient(145deg, rgba(7, 59, 90, 0.97), rgba(16, 42, 67, 0.95));
+  color: #ffffff;
+  box-shadow: 0 20px 50px rgba(7, 59, 90, 0.22);
+}
+
+.dp-pass-app-kicker,
+.dp-pass-label,
+.dp-pass-section-head p,
+.dp-pass-action-card p {
+  margin: 0;
+  color: #0e9aa7;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dp-pass-app-hero .dp-pass-app-kicker {
+  color: #f5b84b;
+}
+
+.dp-pass-app-hero h1,
+.dp-pass-card-copy h2,
+.dp-pass-mini-card h2,
+.dp-pass-section-head h2,
+.dp-pass-action-card h2 {
+  margin: 0;
+  color: #102a43;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.dp-pass-app-hero h1 {
+  max-width: 280px;
+  color: #ffffff;
+  font-size: 1.55rem;
+}
+
+.dp-pass-app-hero p,
+.dp-pass-card-copy p,
+.dp-pass-mini-card span,
+.dp-pass-action-card span {
+  margin: 0;
+  color: rgba(82, 103, 122, 0.92);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.dp-pass-app-hero p {
+  max-width: 320px;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.dp-pass-card,
+.dp-pass-action-card {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(217, 232, 234, 0.98);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(16, 42, 67, 0.08);
+}
+
+.dp-pass-primary-card {
+  overflow: hidden;
+  position: relative;
+}
+
+.dp-pass-status-row {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(245, 184, 75, 0.34);
+  border-radius: 999px;
+  background: rgba(245, 184, 75, 0.12);
+  color: #9b6b19;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.dp-pass-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #f5b84b;
+  box-shadow: 0 0 0 4px rgba(245, 184, 75, 0.17);
+}
+
+.dp-pass-visual {
+  position: relative;
+  display: grid;
+  min-height: 176px;
+  place-items: center;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(14, 154, 167, 0.18), transparent 38%),
+    linear-gradient(135deg, rgba(234, 248, 247, 0.94), rgba(255, 255, 255, 0.94));
+  border: 1px solid rgba(14, 154, 167, 0.14);
+}
+
+.dp-pass-orbit,
+.dp-pass-orbit span {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(14, 154, 167, 0.18);
+}
+
+.dp-pass-orbit {
+  width: 138px;
+  height: 138px;
+}
+
+.dp-pass-orbit span:nth-child(1) {
+  inset: 18px;
+}
+
+.dp-pass-orbit span:nth-child(2) {
+  inset: 34px;
+}
+
+.dp-pass-orbit span:nth-child(3) {
+  inset: 50px;
+}
+
+.dp-pass-mark {
+  position: relative;
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #073b5a, #102a43);
+  color: #ffffff;
+  box-shadow: 0 18px 36px rgba(7, 59, 90, 0.26);
+}
+
+.dp-pass-mark span {
+  color: #f5b84b;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.dp-pass-card-copy {
+  display: grid;
+  gap: 7px;
+}
+
+.dp-pass-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.dp-pass-mini-card {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.dp-pass-mini-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.dp-pass-mini-card p {
+  margin: 0;
+  color: #52677a;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.dp-pass-section-head {
+  display: grid;
+  gap: 5px;
+}
+
+.dp-pass-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dp-pass-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 10px;
+  border: 1px solid rgba(14, 154, 167, 0.18);
+  border-radius: 999px;
+  background: rgba(234, 248, 247, 0.76);
+  color: #073b5a;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.dp-pass-action-card {
+  background:
+    linear-gradient(135deg, rgba(234, 248, 247, 0.82), rgba(255, 255, 255, 0.96));
+}
+
+.dp-pass-action-card div {
+  display: grid;
+  gap: 6px;
+}
+
+.dp-pass-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0e9aa7, #073b5a);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 16px 30px rgba(14, 154, 167, 0.24);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dp-pass-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 36px rgba(14, 154, 167, 0.28);
+}
+
+.dp-pass-action:focus-visible {
+  outline: 3px solid rgba(245, 184, 75, 0.5);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-pass-action {
+    transition: none;
+  }
+
+  .dp-pass-action:hover {
+    transform: none;
+  }
+}
