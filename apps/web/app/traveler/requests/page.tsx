@@ -54,9 +54,14 @@ export default function TravelerRequestsPage() {
           </span>
         </div>
 
-        <Link className="dp-requests-action" href="/traveler/trip-booking">
-          Start request
-        </Link>
+        <div className="dp-requests-action-stack">
+          <Link className="dp-requests-action" href="/traveler/trip-booking">
+            Start request
+          </Link>
+          <Link className="dp-requests-secondary" href="/traveler/requests/sample-request">
+            Review next steps
+          </Link>
+        </div>
       </section>
 
       <section className="dp-requests-timeline" aria-label="Request review stages">
@@ -102,3 +107,4 @@ export default function TravelerRequestsPage() {
     </TravelerAppShell>
   );
 }
+
