@@ -1,51 +1,82 @@
 ﻿"use client";
 
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { TravelerAppShell } from "../_components/TravelerAppShell";
 
-type SubmitState = "idle" | "loading" | "success" | "error";
+type RequestStatus = "idle" | "submitting" | "success" | "error";
 
 type IntentResponse = {
-  ok?: boolean;
-  message?: string;
-  bookingCode?: string;
   status?: string;
+  message?: string;
+  intent?: {
+    requestId?: string;
+    status?: string;
+    reviewMode?: string;
+    travelerAction?: string;
+  };
 };
 
-const tripPills = ["Request to confirm", "Backend review", "Local fulfillment"];
-
-const flowItems = [
-  {
-    step: "1",
-    title: "Send request",
-    copy: "Share the trip window, group size, and destination needs.",
-  },
-  {
-    step: "2",
-    title: "Review readiness",
-    copy: "The backend keeps confirmation and pricing authority.",
-  },
-  {
-    step: "3",
-    title: "Coordinate locally",
-    copy: "Approved fulfillment is handled through governed local participation.",
-  },
+const tripTypes = [
+  "Island hopping",
+  "Dinagat land route",
+  "Local transfer",
+  "Custom Dinagat request",
 ];
 
-export default function TravelerTripBookingPage() {
-  const [title, setTitle] = useState("Dinagat guided trip request");
-  const [notes, setNotes] = useState("");
-  const [submitState, setSubmitState] = useState<SubmitState>("idle");
-  const [message, setMessage] = useState("");
-  const [bookingCode, setBookingCode] = useState("");
-  const [showSignInCta, setShowSignInCta] = useState(false);
+const requestGuardrails = [
+  "Request only",
+  "Backend review",
+  "Payment protected",
+  "QR controlled",
+];
 
-  async function submitIntent(event: FormEvent<HTMLFormElement>) {
+function toDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function addMonths(date: Date, months: number) {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
+}
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const minTravelDate = toDateInputValue(today);
+const maxTravelDate = toDateInputValue(addMonths(today, 24));
+
+export default function TravelerTripBookingPage() {
+  const [destination, setDestination] = useState("Dinagat Islands");
+  const [tripType, setTripType] = useState(tripTypes[0]);
+  const [travelDate, setTravelDate] = useState("");
+  const [partySize, setPartySize] = useState("2");
+  const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState<RequestStatus>("idle");
+  const [message, setMessage] = useState("");
+
+  const summary = useMemo(() => {
+    const dateLabel = travelDate ? travelDate : "Date not set";
+    const paxLabel = partySize ? `${partySize} traveler${partySize === "1" ? "" : "s"}` : "Travelers not set";
+
+    return [tripType, destination || "Destination not set", dateLabel, paxLabel];
+  }, [destination, partySize, travelDate, tripType]);
+
+  async function submitRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setSubmitState("loading");
+    if (!travelDate || travelDate < minTravelDate || travelDate > maxTravelDate) {
+      setStatus("error");
+      setMessage("Choose a travel date within the next 24 months.");
+      return;
+    }
+
+    setStatus("submitting");
     setMessage("");
-    setBookingCode("");
-    setShowSignInCta(false);
 
     try {
       const response = await fetch("/api/trip-bookings/intent", {
@@ -55,135 +86,168 @@ export default function TravelerTripBookingPage() {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          productType: "GOVERNED_TOUR",
-          pricingMode: "REQUEST_TO_CONFIRM",
-          title,
-          travelerRequestJson: {
-            notes,
-            source: "traveler-trip-booking-premium-recovery",
-            frontendAuthority: false,
-          },
+          destination,
+          tripType,
+          travelDate,
+          partySize,
+          notes,
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as IntentResponse | null;
+      const payload = (await response.json().catch(() => ({}))) as IntentResponse;
 
       if (!response.ok) {
-        const safeMessage =
-          response.status === 401 || response.status === 403
-            ? "Please sign in before requesting backend review."
-            : data?.message || "Trip request could not be submitted.";
+        setStatus("error");
 
-        setSubmitState("error");
-        setMessage(safeMessage);
-        setShowSignInCta(response.status === 401 || response.status === 403);
+        const fallbackMessage =
+          response.status === 401 || response.status === 403
+            ? "Please sign in with a traveler account before sending this request."
+            : "Trip request could not be sent for review.";
+
+        setMessage(fallbackMessage);
         return;
       }
 
-      setSubmitState("success");
-      setMessage(data?.message || "Your trip request was received for backend review.");
-      setBookingCode(data?.bookingCode || "");
+      setStatus("success");
+      setMessage(payload.message || "Trip request received for backend review.");
     } catch {
-      setSubmitState("error");
-      setMessage("Trip request service is not reachable right now.");
+      setStatus("error");
+      setMessage("Trip request could not be sent. Check your connection and try again.");
+    }
+  }
+
+  function handleTravelDateChange(event: ChangeEvent<HTMLInputElement>) {
+    const nextDate = event.target.value;
+    setTravelDate(nextDate);
+
+    if (status === "error" && message === "Choose a travel date within the next 24 months.") {
+      setMessage("");
+      setStatus("idle");
     }
   }
 
   return (
-    <main className="dp-app-stage">
-      <section className="dp-trip-grid">
-        <header className="dp-glass-panel dp-hero-panel">
-          <div className="dp-hero-content">
-            <span className="dp-eyebrow">Dinagat trip request</span>
-            <h1 className="dp-visual-title">
-              Request the journey. Confirm through the system.
-            </h1>
-            <p className="dp-visual-copy">
-              A guided request surface for island trips, built to keep booking,
-              payment readiness, and fulfillment decisions under backend control.
-            </p>
+    <TravelerAppShell activeTab="requests">
+      <section className="dp-trip-app-hero" aria-labelledby="trip-booking-title">
+        <p className="dp-true-app-kicker">Trip request</p>
+        <h1 id="trip-booking-title">Plan your Dinagat trip</h1>
+        <p>
+          Send your route details for official backend review. Booking, payment, QR, and fulfillment stay protected.
+        </p>
 
-            <div className="dp-pill-row">
-              {tripPills.map((item) => (
-                <span className="dp-mini-pill" key={item}>
-                  {item}
-                </span>
-              ))}
-            </div>
+        <div className="dp-trip-app-summary" aria-label="Request summary">
+          {summary.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </section>
 
-            <div className="dp-flow-list">
-              {flowItems.map((item) => (
-                <article className="dp-flow-item" key={item.step}>
-                  <span className="dp-flow-dot">{item.step}</span>
-                  <div>
-                    <p className="dp-flow-title">{item.title}</p>
-                    <p className="dp-flow-copy">{item.copy}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
+      <section className="dp-trip-app-card" aria-labelledby="request-form-title">
+        <div className="dp-trip-app-section-head">
+          <div>
+            <p className="dp-true-app-kicker">Request details</p>
+            <h2 id="request-form-title">Start request</h2>
           </div>
-        </header>
+          <span>Review</span>
+        </div>
 
-        <section className="dp-form-panel">
-          <p className="dp-card-kicker">Request details</p>
-          <h2 className="dp-section-title">Send for review.</h2>
-          <p className="dp-section-copy">
-            Add the minimum details needed to begin review. This does not create a
-            confirmed booking.
-          </p>
+        <form className="dp-trip-app-form" onSubmit={submitRequest}>
+          <label className="dp-trip-app-field">
+            <span>Destination</span>
+            <input
+              value={destination}
+              onChange={(event) => setDestination(event.target.value)}
+              placeholder="Dinagat Islands"
+              autoComplete="off"
+              required
+            />
+          </label>
 
-          <form className="dp-form-shell" onSubmit={submitIntent}>
-            <label className="dp-field">
-              <span className="dp-field-label">Trip title</span>
+          <label className="dp-trip-app-field">
+            <span>Trip type</span>
+            <select value={tripType} onChange={(event) => setTripType(event.target.value)} required>
+              {tripTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="dp-trip-app-two">
+            <label className="dp-trip-app-field">
+              <span>Date</span>
               <input
-                className="dp-input"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Dinagat guided trip request"
+                value={travelDate}
+                onChange={handleTravelDateChange}
+                type="date"
+                min={minTravelDate}
+                max={maxTravelDate}
+                required
               />
             </label>
 
-            <label className="dp-field">
-              <span className="dp-field-label">Traveler notes</span>
-              <textarea
-                className="dp-textarea"
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                placeholder="Travel dates, group size, preferred islands, pickup needs, and special requests."
+            <label className="dp-trip-app-field">
+              <span>Pax</span>
+              <input
+                value={partySize}
+                onChange={(event) => setPartySize(event.target.value)}
+                type="number"
+                min="1"
+                max="30"
+                required
               />
             </label>
+          </div>
 
-            <button
-              className="dp-primary-action"
-              disabled={submitState === "loading"}
-              type="submit"
-            >
-              {submitState === "loading" ? "Sending request..." : "Request backend review"}
-            </button>
-          </form>
+          <label className="dp-trip-app-field">
+            <span>Notes</span>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Pickup point, route preference, time window, or accessibility notes."
+              rows={4}
+            />
+          </label>
 
           {message ? (
-            <div className="dp-status-box">
-              <p className="dp-status-title">{message}</p>
-
-              {bookingCode ? (
-                <p className="dp-status-copy">
-                  Reference: <strong>{bookingCode}</strong>
-                </p>
-              ) : null}
-
-              {showSignInCta ? (
-                <div className="dp-action-row">
-                  <a className="dp-secondary-action" href="/login?mode=returning&reason=auth-required">
-                    Sign in to continue
-                  </a>
-                </div>
-              ) : null}
+            <div className={`dp-trip-app-status dp-trip-app-status-${status}`} role="status">
+              {message}
             </div>
           ) : null}
-        </section>
+
+          <button className="dp-trip-app-submit" type="submit" disabled={status === "submitting"}>
+            {status === "submitting" ? "Sending request" : "Send for review"}
+            <span aria-hidden="true">{"\u2192"}</span>
+          </button>
+        </form>
       </section>
-    </main>
+
+      <section className="dp-trip-app-card dp-trip-app-guardrails" aria-labelledby="request-guardrails-title">
+        <div className="dp-trip-app-section-head">
+          <div>
+            <p className="dp-true-app-kicker">Before you continue</p>
+            <h2 id="request-guardrails-title">Official flow</h2>
+          </div>
+          <span>Protected</span>
+        </div>
+
+        <div className="dp-trip-app-chip-grid">
+          {requestGuardrails.map((item, index) => (
+            <span key={item}>
+              <em aria-hidden="true">{["\u25A3", "\u2317", "\u25CC", "\u25C7"][index]}</em>
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <p>
+          No fake confirmation, no browser-side approval, no QR shortcut, and no operator assignment from the frontend.
+        </p>
+      </section>
+    </TravelerAppShell>
   );
 }
+
+
+

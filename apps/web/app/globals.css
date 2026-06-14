@@ -2660,3 +2660,307 @@ a {
     gap: 8px;
   }
 }
+
+/* DINAGAT PASS TRIP BOOKING TRUE MOBILE APP UI */
+.dp-trip-app-hero,
+.dp-trip-app-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 251, 252, 0.94));
+  box-shadow:
+    0 18px 42px rgba(7, 59, 90, 0.078),
+    0 1px 0 rgba(255, 255, 255, 0.72) inset;
+}
+
+.dp-trip-app-hero {
+  min-height: 238px;
+  padding: 28px 24px;
+  border-radius: 34px;
+}
+
+.dp-trip-app-hero::before {
+  content: "";
+  position: absolute;
+  right: -42px;
+  bottom: -58px;
+  width: 190px;
+  height: 156px;
+  border-radius: 52px;
+  background:
+    radial-gradient(ellipse at 62% 30%, rgba(14, 154, 167, 0.18) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 40% 72%, rgba(7, 59, 90, 0.18) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 64% 80%, rgba(215, 168, 59, 0.2) 0 14%, transparent 15%),
+    linear-gradient(135deg, rgba(234, 248, 247, 0.8), rgba(255, 255, 255, 0));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.dp-trip-app-hero h1 {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  margin: 14px 0 0;
+  color: #073b5a;
+  font-size: clamp(2.85rem, 12vw, 4rem);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+}
+
+.dp-trip-app-hero p:not(.dp-true-app-kicker) {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  margin: 16px 0 0;
+  color: rgba(70, 90, 105, 0.96);
+  font-size: 0.96rem;
+  line-height: 1.45;
+}
+
+.dp-trip-app-summary {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.dp-trip-app-summary span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border: 1px solid rgba(14, 154, 167, 0.16);
+  border-radius: 999px;
+  background: rgba(234, 248, 247, 0.82);
+  color: #102a43;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  padding: 0 12px;
+}
+
+.dp-trip-app-card {
+  padding: 22px;
+  border-radius: 30px;
+}
+
+.dp-trip-app-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.dp-trip-app-section-head h2 {
+  margin: 5px 0 0;
+  color: #073b5a;
+  font-size: 1.46rem;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.dp-trip-app-section-head > span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(245, 184, 75, 0.17);
+  color: #7a5417;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0 12px;
+}
+
+.dp-trip-app-form {
+  display: grid;
+  gap: 13px;
+}
+
+.dp-trip-app-field {
+  display: grid;
+  gap: 8px;
+}
+
+.dp-trip-app-field span {
+  color: #52677a;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dp-trip-app-field input,
+.dp-trip-app-field select,
+.dp-trip-app-field textarea {
+  width: 100%;
+  border: 1px solid rgba(217, 232, 234, 0.95);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 251, 252, 0.9));
+  color: #102a43;
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 750;
+  letter-spacing: -0.018em;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.dp-trip-app-field input,
+.dp-trip-app-field select {
+  min-height: 52px;
+  padding: 0 15px;
+}
+
+.dp-trip-app-field textarea {
+  min-height: 118px;
+  resize: vertical;
+  padding: 15px;
+  line-height: 1.42;
+}
+
+.dp-trip-app-field input:focus,
+.dp-trip-app-field select:focus,
+.dp-trip-app-field textarea:focus {
+  border-color: rgba(14, 154, 167, 0.72);
+  box-shadow:
+    0 0 0 4px rgba(14, 154, 167, 0.12),
+    0 12px 28px rgba(7, 59, 90, 0.07);
+  transform: translateY(-1px);
+}
+
+.dp-trip-app-two {
+  display: grid;
+  grid-template-columns: 1fr 0.72fr;
+  gap: 12px;
+}
+
+.dp-trip-app-status {
+  border-radius: 20px;
+  padding: 14px;
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.dp-trip-app-status-success {
+  border: 1px solid rgba(14, 154, 167, 0.24);
+  background: rgba(234, 248, 247, 0.92);
+  color: #0b6e7a;
+}
+
+.dp-trip-app-status-error {
+  border: 1px solid rgba(245, 184, 75, 0.38);
+  background: rgba(255, 248, 230, 0.92);
+  color: #7a5417;
+}
+
+.dp-trip-app-status-submitting,
+.dp-trip-app-status-idle {
+  border: 1px solid rgba(217, 232, 234, 0.92);
+  background: rgba(246, 251, 252, 0.92);
+  color: #52677a;
+}
+
+.dp-trip-app-submit {
+  display: inline-flex;
+  min-height: 50px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #073b5a, #0e9aa7);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  box-shadow: 0 18px 34px rgba(7, 59, 90, 0.22);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.dp-trip-app-submit:hover {
+  box-shadow: 0 22px 44px rgba(7, 59, 90, 0.27);
+  transform: translateY(-1px);
+}
+
+.dp-trip-app-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.dp-trip-app-submit span {
+  font-size: 1.05rem;
+}
+
+.dp-trip-app-guardrails p {
+  margin: 16px 0 0;
+  color: rgba(70, 90, 105, 0.92);
+  font-size: 0.86rem;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+.dp-trip-app-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dp-trip-app-chip-grid span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(245, 184, 75, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 248, 230, 0.8);
+  color: #7a5417;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0 12px;
+}
+
+.dp-trip-app-chip-grid span em {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(245, 184, 75, 0.2);
+  font-style: normal;
+}
+
+@media (max-width: 460px) {
+  .dp-trip-app-hero {
+    min-height: 220px;
+    padding: 24px 20px;
+  }
+
+  .dp-trip-app-hero h1 {
+    font-size: clamp(2.55rem, 13vw, 3.3rem);
+  }
+
+  .dp-trip-app-card {
+    padding: 20px;
+  }
+
+  .dp-trip-app-two {
+    grid-template-columns: 1fr;
+  }
+
+  .dp-trip-app-chip-grid {
+    grid-template-columns: 1fr;
+  }
+}
