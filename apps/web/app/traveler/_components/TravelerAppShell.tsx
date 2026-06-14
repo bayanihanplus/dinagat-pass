@@ -12,25 +12,25 @@ type TravelerBottomNavProps = {
 const navItems = [
   {
     key: "home",
-    icon: "HM",
+    icon: "\u2302",
     label: "Home",
     href: "/traveler/home",
   },
   {
     key: "requests",
-    icon: "RQ",
+    icon: "\u25A4",
     label: "Requests",
     href: "/traveler/trip-booking",
   },
   {
     key: "pass",
-    icon: "QR",
+    icon: "\u25C7",
     label: "Pass",
     href: "/traveler/home",
   },
   {
     key: "profile",
-    icon: "ME",
+    icon: "\u25C9",
     label: "Profile",
     href: "/traveler/home",
   },

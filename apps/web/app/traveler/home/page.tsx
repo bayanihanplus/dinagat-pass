@@ -1,16 +1,23 @@
 ﻿import { TravelerAppShell } from "../_components/TravelerAppShell";
 
+const actionIcons = {
+  trip: "\u2708",
+  pass: "\u25C7",
+} as const;
+
+const guardrailIcons = ["\u265C", "\u25A3", "\u2317", "\u25CC"] as const;
+
 const quickActions = [
   {
-    icon: "TR",
+    icon: actionIcons.trip,
     label: "Trip request",
     title: "Start request",
-    copy: "Send trip details for backend review.",
+    copy: "Send trip details for review.",
     href: "/traveler/trip-booking",
     primary: true,
   },
   {
-    icon: "ID",
+    icon: actionIcons.pass,
     label: "Official pass",
     title: "Pass state",
     copy: "Session-verified traveler access.",
@@ -73,7 +80,7 @@ export default function TravelerHomePage() {
               className={item.primary ? "dp-true-app-primary" : "dp-true-app-secondary"}
               href={item.href}
             >
-              {item.primary ? "Open" : "View"}
+              {item.primary ? "Open \u2192" : "View \u2192"}
             </a>
           </article>
         ))}
@@ -93,6 +100,7 @@ export default function TravelerHomePage() {
                 <h3>{item.title}</h3>
                 <p>{item.copy}</p>
               </div>
+              <strong aria-hidden="true">{"\u203A"}</strong>
             </article>
           ))}
         </div>
@@ -108,11 +116,15 @@ export default function TravelerHomePage() {
         </div>
 
         <div className="dp-true-app-chip-grid">
-          {guardrails.map((item) => (
-            <span key={item}>{item}</span>
+          {guardrails.map((item, index) => (
+            <span key={item}>
+              <em aria-hidden="true">{guardrailIcons[index]}</em>
+              {item}
+            </span>
           ))}
         </div>
       </section>
     </TravelerAppShell>
   );
 }
+
