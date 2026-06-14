@@ -1,4 +1,6 @@
-﻿const quickActions = [
+﻿import { TravelerAppShell } from "../_components/TravelerAppShell";
+
+const quickActions = [
   {
     icon: "TR",
     label: "Trip request",
@@ -42,108 +44,75 @@ const guardrails = [
   "No operator assignment",
 ];
 
-const navItems = [
-  { icon: "HM", label: "Home", active: true },
-  { icon: "RQ", label: "Requests", active: false },
-  { icon: "QR", label: "Pass", active: false },
-  { icon: "ME", label: "Profile", active: false },
-];
-
 export default function TravelerHomePage() {
   return (
-    <main className="dp-true-app-stage">
-      <section className="dp-true-app-device" aria-label="Dinagat Pass traveler app">
-        <header className="dp-true-app-topbar">
-          <div className="dp-true-app-brand">
-            <span className="dp-true-app-mark">DP</span>
-            <div>
-              <p className="dp-true-app-brand-title">Dinagat Pass</p>
-              <p className="dp-true-app-brand-subtitle">Traveler app</p>
-            </div>
-          </div>
+    <TravelerAppShell activeTab="home">
+      <section className="dp-true-app-pass">
+        <div>
+          <p className="dp-true-app-kicker">Traveler home</p>
+          <h1>Your Dinagat journey</h1>
+          <p>
+            Manage pass readiness and trip requests from your verified traveler app.
+          </p>
+        </div>
 
-          <span className="dp-true-app-session">Verified</span>
-        </header>
+        <div className="dp-true-app-pass-state">
+          <span />
+          <p>Session verified</p>
+        </div>
+      </section>
 
-        <section className="dp-true-app-pass">
-          <div>
-            <p className="dp-true-app-kicker">Traveler home</p>
-            <h1>Your Dinagat journey</h1>
-            <p>
-              Manage pass readiness and trip requests from your verified traveler app.
-            </p>
-          </div>
+      <section className="dp-true-app-actions" aria-label="Primary actions">
+        {quickActions.map((item) => (
+          <article className="dp-true-app-action-card" key={item.title}>
+            <div className="dp-true-app-action-icon">{item.icon}</div>
+            <p className="dp-true-app-kicker">{item.label}</p>
+            <h2>{item.title}</h2>
+            <p>{item.copy}</p>
+            <a
+              className={item.primary ? "dp-true-app-primary" : "dp-true-app-secondary"}
+              href={item.href}
+            >
+              {item.primary ? "Open" : "View"}
+            </a>
+          </article>
+        ))}
+      </section>
 
-          <div className="dp-true-app-pass-state">
-            <span />
-            <p>Session verified</p>
-          </div>
-        </section>
+      <section className="dp-true-app-card">
+        <div className="dp-true-app-section-head">
+          <p className="dp-true-app-kicker">Readiness</p>
+          <h2>Before you continue</h2>
+        </div>
 
-        <section className="dp-true-app-actions" aria-label="Primary actions">
-          {quickActions.map((item) => (
-            <article className="dp-true-app-action-card" key={item.title}>
-              <div className="dp-true-app-action-icon">{item.icon}</div>
-              <p className="dp-true-app-kicker">{item.label}</p>
-              <h2>{item.title}</h2>
-              <p>{item.copy}</p>
-              <a
-                className={item.primary ? "dp-true-app-primary" : "dp-true-app-secondary"}
-                href={item.href}
-              >
-                {item.primary ? "Open" : "View"}
-              </a>
+        <div className="dp-true-app-list">
+          {readinessItems.map((item) => (
+            <article className="dp-true-app-list-item" key={item.title}>
+              <span>{item.icon}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+              </div>
             </article>
           ))}
-        </section>
-
-        <section className="dp-true-app-card">
-          <div className="dp-true-app-section-head">
-            <p className="dp-true-app-kicker">Readiness</p>
-            <h2>Before you continue</h2>
-          </div>
-
-          <div className="dp-true-app-list">
-            {readinessItems.map((item) => (
-              <article className="dp-true-app-list-item" key={item.title}>
-                <span>{item.icon}</span>
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.copy}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="dp-true-app-card">
-          <div className="dp-true-app-section-head">
-            <p className="dp-true-app-kicker">Protected actions</p>
-            <h2>Official actions stay protected.</h2>
-            <p>
-              Booking, payment, QR, and fulfillment remain system-controlled.
-            </p>
-          </div>
-
-          <div className="dp-true-app-chip-grid">
-            {guardrails.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
-        </section>
-
-        <nav className="dp-true-app-bottom-nav" aria-label="Traveler app navigation">
-          {navItems.map((item) => (
-            <span
-              className={item.active ? "dp-true-app-nav-item is-active" : "dp-true-app-nav-item"}
-              key={item.label}
-            >
-              <strong>{item.icon}</strong>
-              <em>{item.label}</em>
-            </span>
-          ))}
-        </nav>
+        </div>
       </section>
-    </main>
+
+      <section className="dp-true-app-card">
+        <div className="dp-true-app-section-head">
+          <p className="dp-true-app-kicker">Protected actions</p>
+          <h2>Official actions stay protected.</h2>
+          <p>
+            Booking, payment, QR, and fulfillment remain system-controlled.
+          </p>
+        </div>
+
+        <div className="dp-true-app-chip-grid">
+          {guardrails.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </section>
+    </TravelerAppShell>
   );
 }

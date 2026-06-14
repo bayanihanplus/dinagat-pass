@@ -2174,3 +2174,15 @@ a {
     padding: 14px;
   }
 }
+
+/* DINAGAT PASS TRAVELER APP SHELL COMPONENT FOUNDATION */
+.dp-true-app-nav-item {
+  text-decoration: none;
+}
+
+.dp-true-app-nav-item:focus-visible,
+.dp-true-app-primary:focus-visible,
+.dp-true-app-secondary:focus-visible {
+  outline: 3px solid rgba(14, 154, 167, 0.28);
+  outline-offset: 3px;
+}
