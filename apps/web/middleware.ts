@@ -115,10 +115,19 @@ function isRoleAllowed(role: DinagatUserRole, allowedRoles: readonly DinagatUser
   return allowedRoles.includes(role);
 }
 
+function isProtectedAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+const ADMIN_ROUTE_ALLOWED_ROLES = ["ADMIN", "SUPER_ADMIN"] as const satisfies readonly DinagatUserRole[];
+
+// DINAGAT PASS ADMIN ROUTE PROTECTION
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isProtectedAdminRoute = isProtectedAdminPath(pathname);
 
-  if (!isProtectedTravelerPath(pathname)) {
+  if (!isProtectedTravelerPath(pathname) && !isProtectedAdminRoute) {
     return NextResponse.next();
   }
 
@@ -128,7 +137,12 @@ export async function middleware(request: NextRequest) {
     return redirectToReturningLogin(request);
   }
 
-  const roleRule = getProtectedRouteRoleRule(pathname);
+  const roleRule = isProtectedAdminRoute
+    ? {
+        allowedRoles: ADMIN_ROUTE_ALLOWED_ROLES,
+        unauthorizedRedirectPath: getUnauthorizedRolePath(),
+      }
+    : getProtectedRouteRoleRule(pathname);
 
   if (roleRule && !isRoleAllowed(backendSession.role, roleRule.allowedRoles)) {
     return redirectToRoleRequired(request, roleRule.unauthorizedRedirectPath);
@@ -138,5 +152,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/traveler/:path*"],
+  matcher: ["/traveler/:path*", "/admin/:path*"],
 };
