@@ -1,4 +1,5 @@
 import { TripBookingIntentStatus } from '@prisma/client';
+import { TripBookingIntentContract } from './trip-booking-intent.contract';
 
 export const TRIP_BOOKING_REVIEW_ACTIONS = [
   'approve-for-next-step',
@@ -31,6 +32,24 @@ export type AdminTripBookingReviewActionContract = {
   note: string | null;
 };
 
+export type AdminTripBookingSafetyLocksContract = {
+  paymentUnlocked: false;
+  qrGenerated: false;
+  voucherIssued: false;
+  operatorAssigned: false;
+  fakeConfirmationAllowed: false;
+};
+
+export type AdminTripBookingReviewDetailContract = {
+  success: true;
+  authority: 'backend';
+  frontendOwnsAuthority: false;
+  booking: TripBookingIntentContract;
+  adminReviewState: AdminTripBookingReviewActionContract | null;
+  adminReviewTrail: AdminTripBookingReviewActionContract[];
+  safetyLocks: AdminTripBookingSafetyLocksContract;
+};
+
 export type AdminTripBookingReviewActionResponseContract = {
   success: true;
   authority: 'backend';
@@ -39,11 +58,5 @@ export type AdminTripBookingReviewActionResponseContract = {
   previousStatus: TripBookingIntentStatus;
   currentStatus: TripBookingIntentStatus;
   reviewAction: AdminTripBookingReviewActionContract;
-  safetyLocks: {
-    paymentUnlocked: false;
-    qrGenerated: false;
-    voucherIssued: false;
-    operatorAssigned: false;
-    fakeConfirmationAllowed: false;
-  };
+  safetyLocks: AdminTripBookingSafetyLocksContract;
 };

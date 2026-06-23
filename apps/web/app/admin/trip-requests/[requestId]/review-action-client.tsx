@@ -2,13 +2,68 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type ReviewAction =
   | "approve-for-next-step"
   | "request-info"
   | "hold-review"
   | "reject";
+
+type ReviewActionRecord = {
+  action: ReviewAction;
+  resultingStatus: string;
+  backendOwnedReview: true;
+  paymentUnlocked: false;
+  qrGenerated: false;
+  voucherIssued: false;
+  operatorAssigned: false;
+  fakeConfirmationAllowed: false;
+  reviewedByUserId: string;
+  reviewedByRole: string;
+  reviewedAt: string;
+  reason: string;
+  note: string | null;
+};
+
+type SafetyLocks = {
+  paymentUnlocked: false;
+  qrGenerated: false;
+  voucherIssued: false;
+  operatorAssigned: false;
+  fakeConfirmationAllowed: false;
+};
+
+type BookingDetail = {
+  bookingCode: string;
+  status: string;
+  title: string;
+  destinationName: string | null;
+  routeCode: string | null;
+  serviceDate: string | null;
+  paxCount: number;
+  currencyCode: string;
+  estimatedAmount: string | null;
+  confirmedAmount: string | null;
+  operatorRegistryId: string | null;
+  backendOwned: true;
+  fakeBookingAllowed: false;
+  flatOperatorListAllowed: false;
+  commercialTermsAcceptanceRequired: true;
+  governedOperatorFulfillmentRequired: true;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type AdminReviewDetail = {
+  success: true;
+  authority: "backend";
+  frontendOwnsAuthority: false;
+  booking: BookingDetail;
+  adminReviewState: ReviewActionRecord | null;
+  adminReviewTrail: ReviewActionRecord[];
+  safetyLocks: SafetyLocks;
+};
 
 type ReviewResult = {
   success: true;
@@ -17,28 +72,8 @@ type ReviewResult = {
   bookingCode: string;
   previousStatus: string;
   currentStatus: string;
-  reviewAction: {
-    action: ReviewAction;
-    resultingStatus: string;
-    backendOwnedReview: true;
-    paymentUnlocked: false;
-    qrGenerated: false;
-    voucherIssued: false;
-    operatorAssigned: false;
-    fakeConfirmationAllowed: false;
-    reviewedByUserId: string;
-    reviewedByRole: string;
-    reviewedAt: string;
-    reason: string;
-    note: string | null;
-  };
-  safetyLocks: {
-    paymentUnlocked: false;
-    qrGenerated: false;
-    voucherIssued: false;
-    operatorAssigned: false;
-    fakeConfirmationAllowed: false;
-  };
+  reviewAction: ReviewActionRecord;
+  safetyLocks: SafetyLocks;
 };
 
 type AdminTripRequestReviewClientProps = {
@@ -76,6 +111,14 @@ const reviewActions: Array<{
     reason: "Admin rejected this request during backend-owned review.",
   },
 ];
+
+const lockedSafety: SafetyLocks = {
+  paymentUnlocked: false,
+  qrGenerated: false,
+  voucherIssued: false,
+  operatorAssigned: false,
+  fakeConfirmationAllowed: false,
+};
 
 const styles: Record<string, CSSProperties> = {
   main: {
@@ -179,6 +222,18 @@ const styles: Record<string, CSSProperties> = {
     fontSize: "20px",
     fontWeight: 800,
   },
+  metaGrid: {
+    marginTop: "16px",
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "10px",
+  },
+  metaItem: {
+    border: "1px solid #d8ebef",
+    borderRadius: "16px",
+    background: "#ffffff",
+    padding: "12px 14px",
+  },
   textarea: {
     width: "100%",
     marginTop: "8px",
@@ -271,18 +326,89 @@ function formatStatus(status: string): string {
     .join(" ");
 }
 
+function formatDateTime(value: string | null): string {
+  if (!value) {
+    return "Not set";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString();
+}
+
+function formatMoney(value: string | null, currencyCode: string): string {
+  if (!value) {
+    return "Not priced";
+  }
+
+  return `${currencyCode} ${value}`;
+}
+
 export function AdminTripRequestReviewClient({
   requestId,
 }: AdminTripRequestReviewClientProps) {
   const bookingCode = decodeURIComponent(requestId);
+  const [detail, setDetail] = useState<AdminReviewDetail | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState<ReviewAction | null>(null);
   const [result, setResult] = useState<ReviewResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState("");
 
+  const loadDetail = useCallback(async () => {
+    setIsLoadingDetail(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/trip-bookings/intent/${encodeURIComponent(bookingCode)}`,
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+          },
+          cache: "no-store",
+        },
+      );
+
+      const payload = (await response.json()) as AdminReviewDetail | { message?: string };
+
+      if (!response.ok) {
+        throw new Error(
+          "message" in payload && payload.message
+            ? payload.message
+            : "Unable to load backend request detail.",
+        );
+      }
+
+      setDetail(payload as AdminReviewDetail);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to load backend request detail.",
+      );
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  }, [bookingCode]);
+
+  useEffect(() => {
+    void loadDetail();
+  }, [loadDetail]);
+
   const currentStatus = useMemo(() => {
-    return result?.currentStatus ?? "REQUESTED";
-  }, [result]);
+    return result?.currentStatus ?? detail?.booking.status ?? "REQUESTED";
+  }, [detail, result]);
+
+  const currentSafetyLocks = detail?.safetyLocks ?? result?.safetyLocks ?? lockedSafety;
+  const reviewState = detail?.adminReviewState ?? result?.reviewAction ?? null;
+  const reviewTrail = detail?.adminReviewTrail ?? [];
+  const booking = detail?.booking;
 
   async function submitReviewAction(action: ReviewAction, reason: string) {
     setIsSubmitting(action);
@@ -317,6 +443,7 @@ export function AdminTripRequestReviewClient({
       }
 
       setResult(payload as ReviewResult);
+      await loadDetail();
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
@@ -337,7 +464,8 @@ export function AdminTripRequestReviewClient({
               <p style={styles.eyebrow}>Backend-Owned Review</p>
               <h1 style={styles.h1}>Trip Request Review</h1>
               <p style={styles.copy}>
-                Review actions update the request lifecycle only. Payment, voucher,
+                This page now loads the live backend booking state before action.
+                Review actions update the request lifecycle only; payment, voucher,
                 QR, booking confirmation, and operator assignment remain locked
                 behind separate backend gates.
               </p>
@@ -355,19 +483,45 @@ export function AdminTripRequestReviewClient({
             <h2 style={styles.bookingCode}>{bookingCode}</h2>
 
             <div style={styles.stateBox}>
-              <p style={styles.label}>Current Review State</p>
-              <p style={styles.status}>{formatStatus(currentStatus)}</p>
-              {result ? (
+              <p style={styles.label}>Current Backend State</p>
+              <p style={styles.status}>
+                {isLoadingDetail ? "Loading..." : formatStatus(currentStatus)}
+              </p>
+              {booking ? (
                 <p style={styles.copy}>
-                  Previous status: {formatStatus(result.previousStatus)}.
-                  Backend action recorded by {result.reviewAction.reviewedByRole}.
+                  {booking.title} · {booking.destinationName ?? "Destination not set"}
                 </p>
               ) : (
                 <p style={styles.copy}>
-                  No review action has been applied from this screen yet.
+                  Backend detail has not loaded yet.
                 </p>
               )}
             </div>
+
+            {booking ? (
+              <div style={styles.metaGrid}>
+                {[
+                  ["Pax", String(booking.paxCount)],
+                  ["Route", booking.routeCode ?? "Not set"],
+                  ["Service Date", formatDateTime(booking.serviceDate)],
+                  ["Estimate", formatMoney(booking.estimatedAmount, booking.currencyCode)],
+                ].map(([label, value]) => (
+                  <div key={label} style={styles.metaItem}>
+                    <p style={styles.label}>{label}</p>
+                    <p style={{ margin: "6px 0 0", color: "#102a43", fontSize: "14px", fontWeight: 800 }}>
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {reviewState ? (
+              <div style={styles.goldNotice}>
+                Latest review: <strong>{reviewState.action}</strong> by{" "}
+                {reviewState.reviewedByRole} at {formatDateTime(reviewState.reviewedAt)}.
+              </div>
+            ) : null}
 
             <label style={{ display: "block", marginTop: "18px" }}>
               <span style={{ color: "#263b4d", fontSize: "14px", fontWeight: 800 }}>
@@ -387,11 +541,11 @@ export function AdminTripRequestReviewClient({
 
             <div style={{ marginTop: "16px", display: "grid", gap: "12px" }}>
               {[
-                "Payment remains locked",
-                "Voucher is not issued",
-                "QR is not generated",
-                "Operator is not assigned",
-                "Booking is not confirmed",
+                `Payment remains locked: ${String(currentSafetyLocks.paymentUnlocked)}`,
+                `Voucher is not issued: ${String(currentSafetyLocks.voucherIssued)}`,
+                `QR is not generated: ${String(currentSafetyLocks.qrGenerated)}`,
+                `Operator is not assigned: ${String(currentSafetyLocks.operatorAssigned)}`,
+                `Fake confirmation allowed: ${String(currentSafetyLocks.fakeConfirmationAllowed)}`,
               ].map((item) => (
                 <div key={item} style={styles.lockItem}>
                   {item}
@@ -399,15 +553,9 @@ export function AdminTripRequestReviewClient({
               ))}
             </div>
 
-            {result ? (
-              <div style={styles.goldNotice}>
-                Backend confirmed safety locks: payment{" "}
-                {String(result.safetyLocks.paymentUnlocked)}, QR{" "}
-                {String(result.safetyLocks.qrGenerated)}, voucher{" "}
-                {String(result.safetyLocks.voucherIssued)}, operator{" "}
-                {String(result.safetyLocks.operatorAssigned)}.
-              </div>
-            ) : null}
+            <div style={styles.goldNotice}>
+              Review trail entries: {reviewTrail.length}
+            </div>
           </div>
         </section>
 
@@ -422,12 +570,13 @@ export function AdminTripRequestReviewClient({
               <button
                 key={item.action}
                 type="button"
-                disabled={isSubmitting !== null}
+                disabled={isSubmitting !== null || isLoadingDetail}
                 onClick={() => submitReviewAction(item.action, item.reason)}
                 style={{
                   ...styles.actionButton,
-                  opacity: isSubmitting !== null ? 0.62 : 1,
-                  cursor: isSubmitting !== null ? "not-allowed" : "pointer",
+                  opacity: isSubmitting !== null || isLoadingDetail ? 0.62 : 1,
+                  cursor:
+                    isSubmitting !== null || isLoadingDetail ? "not-allowed" : "pointer",
                 }}
               >
                 <span style={styles.actionLabel}>

@@ -18,6 +18,8 @@ import {
 import {
   AdminTripBookingReviewActionRequestContract,
   AdminTripBookingReviewActionResponseContract,
+  AdminTripBookingReviewDetailContract,
+  AdminTripBookingReviewActionContract,
   TripBookingReviewAction,
   TRIP_BOOKING_REVIEW_ACTIONS
 } from '../contracts/trip-booking-review-action.contract';
@@ -165,6 +167,51 @@ export class TripBookingIntentService {
     return this.toContract(booking);
   }
 
+  async getAdminReviewDetail(bookingCode: string): Promise<AdminTripBookingReviewDetailContract> {
+    const normalizedBookingCode = bookingCode?.trim();
+
+    if (!normalizedBookingCode) {
+      throw new BadRequestException('bookingCode is required.');
+    }
+
+    const booking = await this.prisma.tripBookingIntent.findUnique({
+      where: { bookingCode: normalizedBookingCode },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Trip booking intent was not found.');
+    }
+
+    const metadata =
+      booking.metadata && typeof booking.metadata === 'object' && !Array.isArray(booking.metadata)
+        ? (booking.metadata as Record<string, unknown>)
+        : {};
+
+    const adminReviewState = this.toAdminReviewActionOrNull(metadata.adminReviewState);
+    const adminReviewTrail = Array.isArray(metadata.adminReviewTrail)
+      ? metadata.adminReviewTrail
+          .map((entry) => this.toAdminReviewActionOrNull(entry))
+          .filter((entry): entry is AdminTripBookingReviewActionContract => entry !== null)
+      : [];
+
+    return {
+      success: true,
+      authority: 'backend',
+      frontendOwnsAuthority: false,
+      booking: this.toContract(booking),
+      adminReviewState,
+      adminReviewTrail,
+      safetyLocks: {
+        paymentUnlocked: false,
+        qrGenerated: false,
+        voucherIssued: false,
+        operatorAssigned: false,
+        fakeConfirmationAllowed: false
+      }
+    };
+  }
+
+
   async applyAdminReviewAction(
     bookingCode: string,
     body: AdminTripBookingReviewActionRequestContract,
@@ -278,6 +325,46 @@ export class TripBookingIntentService {
     };
   }
 
+  private toAdminReviewActionOrNull(value: unknown): AdminTripBookingReviewActionContract | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+
+    const record = value as Record<string, unknown>;
+
+    if (!TRIP_BOOKING_REVIEW_ACTIONS.includes(record.action as TripBookingReviewAction)) {
+      return null;
+    }
+
+    const resultingStatus = record.resultingStatus;
+    if (typeof resultingStatus !== 'string') {
+      return null;
+    }
+
+    if (typeof record.reviewedByUserId !== 'string' || typeof record.reviewedByRole !== 'string') {
+      return null;
+    }
+
+    if (typeof record.reviewedAt !== 'string' || typeof record.reason !== 'string') {
+      return null;
+    }
+
+    return {
+      action: record.action as TripBookingReviewAction,
+      resultingStatus: resultingStatus as TripBookingIntentStatus,
+      backendOwnedReview: true,
+      paymentUnlocked: false,
+      qrGenerated: false,
+      voucherIssued: false,
+      operatorAssigned: false,
+      fakeConfirmationAllowed: false,
+      reviewedByUserId: record.reviewedByUserId,
+      reviewedByRole: record.reviewedByRole,
+      reviewedAt: record.reviewedAt,
+      reason: record.reason,
+      note: typeof record.note === 'string' ? record.note : null
+    };
+  }
   private requireReviewAction(action: unknown): TripBookingReviewAction {
     if (typeof action !== 'string') {
       throw new BadRequestException('review action is required.');
