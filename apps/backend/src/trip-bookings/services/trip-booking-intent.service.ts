@@ -15,6 +15,12 @@ import {
   TripBookingIntentContract,
   TripBookingIntentCreateResponseContract,
 } from '../contracts/trip-booking-intent.contract';
+import {
+  AdminTripBookingReviewActionRequestContract,
+  AdminTripBookingReviewActionResponseContract,
+  TripBookingReviewAction,
+  TRIP_BOOKING_REVIEW_ACTIONS
+} from '../contracts/trip-booking-review-action.contract';
 
 type AuthenticatedRequestContext = {
   userId?: string;
@@ -159,6 +165,160 @@ export class TripBookingIntentService {
     return this.toContract(booking);
   }
 
+  async applyAdminReviewAction(
+    bookingCode: string,
+    body: AdminTripBookingReviewActionRequestContract,
+    actor: { userId: string; role: string }
+  ): Promise<AdminTripBookingReviewActionResponseContract> {
+    const normalizedBookingCode = bookingCode?.trim();
+
+    if (!normalizedBookingCode) {
+      throw new BadRequestException('bookingCode is required.');
+    }
+
+    if (!actor.userId || !actor.role) {
+      throw new BadRequestException('Backend auth context is required for admin review actions.');
+    }
+
+    const action = this.requireReviewAction(body.action);
+    const reason = this.requireReviewReason(body.reason);
+    const note = this.normalizeOptionalText(body.note);
+
+    const booking = await this.prisma.tripBookingIntent.findUnique({
+      where: { bookingCode: normalizedBookingCode }
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Trip booking intent was not found.');
+    }
+
+    const resultingStatus = this.getReviewActionResultingStatus(action);
+    const reviewedAt = new Date().toISOString();
+
+    const reviewAction = {
+      action,
+      resultingStatus,
+      backendOwnedReview: true as const,
+      paymentUnlocked: false as const,
+      qrGenerated: false as const,
+      voucherIssued: false as const,
+      operatorAssigned: false as const,
+      fakeConfirmationAllowed: false as const,
+      reviewedByUserId: actor.userId,
+      reviewedByRole: actor.role,
+      reviewedAt,
+      reason,
+      note
+    };
+
+    const currentMetadata =
+      booking.metadata && typeof booking.metadata === 'object' && !Array.isArray(booking.metadata)
+        ? (booking.metadata as Record<string, unknown>)
+        : {};
+
+    const existingReviewTrail = Array.isArray(currentMetadata.adminReviewTrail)
+      ? currentMetadata.adminReviewTrail
+      : [];
+
+    const updatedMetadata = {
+      ...currentMetadata,
+      adminReviewState: {
+        action,
+        resultingStatus,
+        reviewedByUserId: actor.userId,
+        reviewedByRole: actor.role,
+        reviewedAt,
+        reason,
+        note,
+        backendOwnedReview: true,
+        paymentUnlocked: false,
+        qrGenerated: false,
+        voucherIssued: false,
+        operatorAssigned: false,
+        fakeConfirmationAllowed: false
+      },
+      adminReviewTrail: [
+        ...existingReviewTrail,
+        reviewAction
+      ],
+      safetyLocks: {
+        paymentUnlocked: false,
+        qrGenerated: false,
+        voucherIssued: false,
+        operatorAssigned: false,
+        fakeConfirmationAllowed: false
+      }
+    };
+
+    const updatedBooking = await this.prisma.tripBookingIntent.update({
+      where: { id: booking.id },
+      data: {
+        status: resultingStatus,
+        metadata: updatedMetadata,
+        confirmedAt: null,
+        cancelledAt: action === 'reject' ? new Date(reviewedAt) : booking.cancelledAt
+      }
+    });
+
+    return {
+      success: true,
+      authority: 'backend',
+      frontendOwnsAuthority: false,
+      bookingCode: updatedBooking.bookingCode,
+      previousStatus: booking.status,
+      currentStatus: updatedBooking.status,
+      reviewAction,
+      safetyLocks: {
+        paymentUnlocked: false,
+        qrGenerated: false,
+        voucherIssued: false,
+        operatorAssigned: false,
+        fakeConfirmationAllowed: false
+      }
+    };
+  }
+
+  private requireReviewAction(action: unknown): TripBookingReviewAction {
+    if (typeof action !== 'string') {
+      throw new BadRequestException('review action is required.');
+    }
+
+    if (!TRIP_BOOKING_REVIEW_ACTIONS.includes(action as TripBookingReviewAction)) {
+      throw new BadRequestException('Unsupported trip booking review action.');
+    }
+
+    return action as TripBookingReviewAction;
+  }
+
+  private requireReviewReason(reason: unknown): string {
+    if (typeof reason !== 'string' || reason.trim().length < 3) {
+      throw new BadRequestException('review reason is required.');
+    }
+
+    return reason.trim();
+  }
+
+  private normalizeOptionalText(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  private getReviewActionResultingStatus(action: TripBookingReviewAction): TripBookingIntentStatus {
+    if (action === 'approve-for-next-step') {
+      return TripBookingIntentStatus.PENDING_CONFIRMATION;
+    }
+
+    if (action === 'reject') {
+      return TripBookingIntentStatus.REJECTED;
+    }
+
+    return TripBookingIntentStatus.REQUESTED;
+  }
   private async generateBookingCode(): Promise<string> {
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const now = new Date();
