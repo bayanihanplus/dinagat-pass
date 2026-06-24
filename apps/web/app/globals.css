@@ -4358,3 +4358,758 @@ a {
     min-height: 158px;
   }
 }
+
+/* DINAGAT PASS TRAVELER BOTTOM NAV ALIGNMENT FIX 01 */
+.dp-true-app-device {
+  position: relative;
+}
+
+.dp-true-app-bottom-nav {
+  position: sticky;
+  left: auto;
+  right: auto;
+  bottom: 13px;
+  width: calc(100% - 28px);
+  max-width: 340px;
+  margin: 14px auto 0;
+  transform: none;
+  z-index: 30;
+}
+
+@media (max-width: 420px) {
+  .dp-true-app-bottom-nav {
+    width: calc(100% - 24px);
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* DINAGAT PASS TRAVELER BOTTOM NAV WIDTH TUNING 02 */
+.dp-true-app-bottom-nav {
+  width: calc(100% - 32px);
+  max-width: 390px;
+  min-height: 68px;
+  padding: 8px 10px;
+}
+
+.dp-true-app-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  .dp-true-app-bottom-nav {
+    width: calc(100% - 26px);
+    max-width: none;
+  }
+}
+
+/* DINAGAT PASS TRAVELER BOTTOM NAV WIDTH TUNING 03 */
+.dp-true-app-bottom-nav {
+  width: calc(100% - 18px);
+  max-width: 420px;
+  min-height: 70px;
+  padding: 8px 10px;
+  border-radius: 26px;
+}
+
+.dp-true-app-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dp-true-app-nav-item strong {
+  width: 31px;
+  height: 31px;
+}
+
+@media (max-width: 420px) {
+  .dp-true-app-bottom-nav {
+    width: calc(100% - 18px);
+    max-width: none;
+  }
+}
+
+/* DINAGAT PASS TRAVELER BOTTOM NAV WIDTH TUNING 04 SHELL WIDTH */
+.dp-true-app-bottom-nav {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+  min-height: 70px;
+  margin: 16px 0 0;
+  padding: 8px 10px;
+  border-radius: 28px;
+  box-sizing: border-box;
+}
+
+.dp-true-app-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dp-true-app-nav-item strong {
+  width: 31px;
+  height: 31px;
+}
+
+@media (max-width: 420px) {
+  .dp-true-app-bottom-nav {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* DINAGAT PASS TRAVELER HOME MOBILE MOCKUP PARITY 01 */
+.dp-true-app-stage {
+  min-height: 100vh;
+  padding: 18px 12px 34px;
+  background:
+    radial-gradient(circle at 15% 12%, rgba(117, 222, 232, 0.32), transparent 34%),
+    radial-gradient(circle at 86% 7%, rgba(244, 214, 146, 0.18), transparent 30%),
+    linear-gradient(135deg, #e9fbfd 0%, #f8fdfb 48%, #fffdf7 100%);
+}
+
+.dp-true-app-device {
+  width: min(100%, 430px);
+  gap: 13px;
+  padding: 18px 18px 0;
+  border-radius: 42px;
+  border: 1px solid rgba(9, 108, 128, 0.14);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(194, 249, 249, 0.35), transparent 28%),
+    radial-gradient(circle at 88% 72%, rgba(255, 240, 190, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 253, 252, 0.92));
+  box-shadow:
+    0 34px 96px rgba(7, 59, 90, 0.17),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+}
+
+.dp-true-app-topbar {
+  min-height: 62px;
+  padding: 12px 14px;
+  border-radius: 31px;
+  border: 1px solid rgba(10, 126, 145, 0.13);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 42px rgba(7, 59, 90, 0.07);
+}
+
+.dp-true-app-brand {
+  gap: 12px;
+}
+
+.dp-true-app-mark {
+  width: 43px;
+  height: 43px;
+  border-radius: 19px;
+  font-size: 0.9rem;
+  box-shadow: 0 14px 25px rgba(0, 126, 145, 0.23);
+}
+
+.dp-true-app-brand-title {
+  font-size: 0.94rem;
+  letter-spacing: -0.035em;
+}
+
+.dp-true-app-brand-subtitle {
+  font-size: 0.72rem;
+  font-weight: 760;
+  color: #52677a;
+}
+
+.dp-true-app-session {
+  min-height: 34px;
+  padding: 0 17px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: #063956;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.dp-true-app-pass {
+  position: relative;
+  min-height: 242px;
+  padding: 23px 22px;
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(9, 108, 128, 0.13);
+  background:
+    radial-gradient(circle at 87% 83%, rgba(255, 223, 154, 0.38), transparent 26%),
+    radial-gradient(circle at 89% 18%, rgba(154, 232, 238, 0.18), transparent 30%),
+    linear-gradient(135deg, rgba(250, 255, 255, 0.98), rgba(232, 250, 250, 0.84));
+  box-shadow:
+    0 18px 40px rgba(7, 59, 90, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.dp-true-app-pass::before {
+  content: "";
+  position: absolute;
+  right: 24px;
+  bottom: 26px;
+  width: 112px;
+  height: 118px;
+  opacity: 0.24;
+  background:
+    radial-gradient(ellipse at 50% 82%, rgba(222, 177, 86, 0.42) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 70% 74%, rgba(222, 177, 86, 0.32) 0 16%, transparent 17%),
+    linear-gradient(75deg, transparent 0 42%, rgba(9, 108, 128, 0.34) 43% 51%, transparent 52%),
+    linear-gradient(105deg, transparent 0 45%, rgba(9, 108, 128, 0.24) 46% 53%, transparent 54%);
+  border-radius: 36px;
+  transform: rotate(-8deg);
+}
+
+.dp-true-app-pass::after {
+  content: "";
+  position: absolute;
+  right: 54px;
+  bottom: 64px;
+  width: 64px;
+  height: 64px;
+  opacity: 0.2;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 100%, transparent 0 34%, rgba(9, 108, 128, 0.36) 35% 40%, transparent 41%),
+    conic-gradient(from 210deg, transparent 0 8%, rgba(9, 108, 128, 0.36) 9% 15%, transparent 16% 100%);
+}
+
+.dp-true-app-kicker {
+  margin: 0;
+  color: #008c9b;
+  font-size: 0.72rem;
+  font-weight: 930;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.dp-true-app-pass h1 {
+  position: relative;
+  max-width: 280px;
+  margin: 19px 0 10px;
+  color: #0a2844;
+  font-size: clamp(2.64rem, 12.1vw, 3.55rem);
+  font-weight: 890;
+  line-height: 0.93;
+  letter-spacing: -0.072em;
+  z-index: 1;
+}
+
+.dp-true-app-pass p:not(.dp-true-app-kicker) {
+  position: relative;
+  max-width: 270px;
+  margin: 0;
+  color: #52677a;
+  font-size: 0.96rem;
+  font-weight: 760;
+  line-height: 1.36;
+  z-index: 1;
+}
+
+.dp-true-app-pass-state {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  margin-top: 19px;
+  min-height: 38px;
+  padding: 0 16px 0 10px;
+  gap: 8px;
+  border-radius: 999px;
+  color: #00979c;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 24px rgba(0, 142, 156, 0.08);
+}
+
+.dp-true-app-pass-state span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #00a3a8, #048294);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.dp-true-app-pass-state p {
+  color: #008c95;
+  font-size: 0.82rem;
+  font-weight: 910;
+}
+
+.dp-true-app-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+}
+
+.dp-true-app-action-card {
+  min-height: 185px;
+  padding: 18px;
+  border-radius: 26px;
+  border: 1px solid rgba(16, 42, 67, 0.11);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 18px 44px rgba(7, 59, 90, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.dp-true-app-action-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 18px;
+  color: #037f90;
+  background: linear-gradient(135deg, #e1fbfb, #d9f4f0);
+  font-size: 1.14rem;
+}
+
+.dp-true-app-action-card h2 {
+  margin: 15px 0 8px;
+  color: #0a2844;
+  font-size: 1.18rem;
+  font-weight: 870;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.dp-true-app-action-card p:not(.dp-true-app-kicker) {
+  color: #52677a;
+  font-size: 0.82rem;
+  font-weight: 770;
+  line-height: 1.32;
+}
+
+.dp-true-app-primary,
+.dp-true-app-secondary {
+  min-height: 45px;
+  margin-top: auto;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 920;
+}
+
+.dp-true-app-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #006f88, #08a3a1);
+  border: 0;
+  box-shadow: 0 12px 22px rgba(0, 120, 141, 0.18);
+}
+
+.dp-true-app-secondary {
+  color: #063956;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 127, 145, 0.28);
+}
+
+.dp-true-app-card {
+  padding: 22px;
+  border-radius: 28px;
+  border: 1px solid rgba(16, 42, 67, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 44px rgba(7, 59, 90, 0.07);
+}
+
+.dp-true-app-section-head h2 {
+  margin: 10px 0 0;
+  color: #0a2844;
+  font-size: 1.33rem;
+  font-weight: 880;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.dp-true-app-section-head p:not(.dp-true-app-kicker) {
+  margin-top: 8px;
+  color: #52677a;
+  font-size: 0.92rem;
+  font-weight: 770;
+  line-height: 1.36;
+}
+
+.dp-true-app-list {
+  margin-top: 16px;
+  gap: 9px;
+}
+
+.dp-true-app-list-item {
+  min-height: 61px;
+  padding: 10px 13px;
+  border-radius: 19px;
+  background: linear-gradient(90deg, rgba(230, 250, 250, 0.96), rgba(250, 255, 255, 0.88));
+  border: 1px solid rgba(11, 142, 155, 0.13);
+  box-shadow: none;
+}
+
+.dp-true-app-list-item span {
+  width: 34px;
+  height: 34px;
+  color: #057f91;
+  background: #dff7f6;
+  font-size: 0.74rem;
+  font-weight: 920;
+}
+
+.dp-true-app-list-item h3 {
+  color: #0a2844;
+  font-size: 0.88rem;
+  font-weight: 880;
+}
+
+.dp-true-app-list-item p {
+  color: #52677a;
+  font-size: 0.76rem;
+  font-weight: 740;
+}
+
+.dp-true-app-list-item > strong {
+  color: #5e7282;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.dp-true-app-protected-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  column-gap: 14px;
+  align-items: start;
+}
+
+.dp-true-app-protected-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 19px;
+  color: #9a690d;
+  background: linear-gradient(135deg, rgba(255, 245, 221, 0.95), rgba(255, 250, 241, 0.92));
+  font-size: 1.25rem;
+}
+
+.dp-true-app-protected-card .dp-true-app-chip-grid {
+  grid-column: 1 / -1;
+}
+
+.dp-true-app-chip-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.dp-true-app-chip-grid span {
+  min-height: 43px;
+  padding: 0 14px;
+  justify-content: flex-start;
+  gap: 10px;
+  border-radius: 999px;
+  color: #6b4306;
+  background: linear-gradient(135deg, #fff8e8, #fffdf8);
+  border: 1px solid rgba(204, 145, 34, 0.16);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.dp-true-app-chip-grid span em {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(216, 163, 58, 0.16);
+  font-size: 0.76rem;
+  font-style: normal;
+}
+
+.dp-true-app-bottom-nav {
+  position: sticky;
+  bottom: 0;
+  left: auto;
+  right: auto;
+  z-index: 40;
+  align-self: stretch;
+  width: calc(100% + 36px);
+  max-width: none;
+  min-height: 112px;
+  margin: 4px -18px 0;
+  padding: 18px 22px 24px;
+  border-radius: 0 0 42px 42px;
+  border: 0;
+  border-top: 1px solid rgba(16, 42, 67, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 -16px 44px rgba(7, 59, 90, 0.07);
+  backdrop-filter: blur(22px);
+  box-sizing: border-box;
+}
+
+.dp-true-app-bottom-nav::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: 96px;
+  height: 5px;
+  border-radius: 999px;
+  background: #1d2f3c;
+  opacity: 0.9;
+  transform: translateX(-50%);
+}
+
+.dp-true-app-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 64px;
+  border-radius: 28px;
+  color: #52677a;
+}
+
+.dp-true-app-nav-item strong {
+  width: 36px;
+  height: 36px;
+  border-radius: 16px;
+  background: rgba(235, 244, 247, 0.95);
+  color: #53697d;
+  font-size: 1rem;
+}
+
+.dp-true-app-nav-item em {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 880;
+  letter-spacing: -0.02em;
+}
+
+.dp-true-app-nav-item.is-active {
+  color: #006e83;
+  background: linear-gradient(135deg, #e4fbfb, #eefdf9);
+}
+
+.dp-true-app-nav-item.is-active strong {
+  color: #ffffff;
+  background: linear-gradient(135deg, #006f88, #08a3a1);
+  box-shadow: 0 10px 20px rgba(0, 120, 141, 0.18);
+}
+
+@media (max-width: 420px) {
+  .dp-true-app-stage {
+    padding: 0;
+  }
+
+  .dp-true-app-device {
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 14px 14px 0;
+  }
+
+  .dp-true-app-topbar {
+    border-radius: 28px;
+  }
+
+  .dp-true-app-pass {
+    min-height: 228px;
+    padding: 21px;
+  }
+
+  .dp-true-app-pass h1 {
+    font-size: 2.86rem;
+  }
+
+  .dp-true-app-actions {
+    gap: 10px;
+  }
+
+  .dp-true-app-action-card {
+    min-height: 174px;
+    padding: 16px;
+  }
+
+  .dp-true-app-card {
+    padding: 18px;
+  }
+
+  .dp-true-app-chip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dp-true-app-bottom-nav {
+    width: calc(100% + 28px);
+    min-height: 104px;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-radius: 0;
+  }
+}
+
+/* DINAGAT PASS TRAVELER HOME HERO BANNER MOCKUP PARITY 02 */
+.dp-true-app-device {
+  width: min(100%, 520px);
+  padding: 18px 18px 0;
+}
+
+.dp-true-app-pass {
+  min-height: 276px;
+  padding: 28px 28px 24px;
+  border-radius: 35px;
+  background:
+    radial-gradient(circle at 88% 77%, rgba(255, 221, 142, 0.45), transparent 29%),
+    radial-gradient(circle at 92% 30%, rgba(162, 236, 240, 0.2), transparent 27%),
+    linear-gradient(135deg, rgba(253, 255, 255, 0.99), rgba(232, 250, 250, 0.9) 58%, rgba(255, 247, 222, 0.58));
+}
+
+.dp-true-app-pass::before {
+  right: 28px;
+  bottom: 26px;
+  width: 188px;
+  height: 162px;
+  opacity: 0.34;
+  background:
+    radial-gradient(ellipse at 77% 84%, rgba(220, 170, 74, 0.34) 0 28%, transparent 29%),
+    radial-gradient(ellipse at 59% 80%, rgba(220, 170, 74, 0.25) 0 19%, transparent 20%),
+    radial-gradient(ellipse at 82% 64%, transparent 0 28%, rgba(9, 108, 128, 0.27) 29% 35%, transparent 36%),
+    linear-gradient(78deg, transparent 0 47%, rgba(9, 108, 128, 0.28) 48% 53%, transparent 54%),
+    linear-gradient(106deg, transparent 0 47%, rgba(9, 108, 128, 0.2) 48% 53%, transparent 54%),
+    conic-gradient(from 190deg at 48% 38%, transparent 0 8%, rgba(9, 108, 128, 0.2) 9% 13%, transparent 14% 20%, rgba(9, 108, 128, 0.18) 21% 26%, transparent 27% 100%);
+  border-radius: 52px;
+  transform: none;
+}
+
+.dp-true-app-pass::after {
+  right: 40px;
+  bottom: 30px;
+  width: 188px;
+  height: 92px;
+  opacity: 0.24;
+  border-radius: 0;
+  background:
+    repeating-radial-gradient(ellipse at 62% 100%, transparent 0 13px, rgba(0, 142, 156, 0.2) 14px 15px, transparent 16px 29px),
+    linear-gradient(180deg, transparent 0 64%, rgba(0, 142, 156, 0.12) 65% 67%, transparent 68%);
+}
+
+.dp-true-app-pass h1 {
+  max-width: 370px;
+  margin: 20px 0 10px;
+  font-size: clamp(3.25rem, 9.4vw, 4.15rem);
+  line-height: 0.91;
+  letter-spacing: -0.076em;
+}
+
+.dp-true-app-pass h1 span {
+  display: block;
+  white-space: nowrap;
+}
+
+.dp-true-app-pass p:not(.dp-true-app-kicker) {
+  max-width: 315px;
+  font-size: 1.05rem;
+  line-height: 1.36;
+}
+
+.dp-true-app-pass-state {
+  margin-top: 22px;
+  min-height: 40px;
+}
+
+.dp-true-app-topbar {
+  min-height: 64px;
+  padding: 12px 16px;
+}
+
+.dp-true-app-actions {
+  gap: 14px;
+}
+
+.dp-true-app-action-card {
+  min-height: 206px;
+  padding: 20px;
+}
+
+.dp-true-app-card {
+  padding: 24px;
+}
+
+@media (max-width: 560px) {
+  .dp-true-app-device {
+    width: min(100%, 430px);
+  }
+
+  .dp-true-app-pass {
+    min-height: 242px;
+    padding: 23px 22px;
+  }
+
+  .dp-true-app-pass h1 {
+    max-width: 300px;
+    font-size: clamp(2.72rem, 11.6vw, 3.3rem);
+  }
+
+  .dp-true-app-pass p:not(.dp-true-app-kicker) {
+    max-width: 270px;
+    font-size: 0.94rem;
+  }
+
+  .dp-true-app-pass::before {
+    right: 14px;
+    bottom: 26px;
+    width: 132px;
+    height: 128px;
+    opacity: 0.28;
+  }
+
+  .dp-true-app-pass::after {
+    right: 18px;
+    bottom: 28px;
+    width: 130px;
+    height: 74px;
+  }
+}
+
+/* DINAGAT PASS TRAVELER HOME HERO BANNER ASSET PATCH 01 */
+.dp-true-app-pass {
+  background:
+    linear-gradient(90deg, rgba(248, 255, 255, 0.93) 0%, rgba(248, 255, 255, 0.84) 43%, rgba(255, 255, 255, 0.08) 100%),
+    url("/traveler/traveler-home-hero-banner.png") center center / cover no-repeat;
+}
+
+.dp-true-app-pass::before,
+.dp-true-app-pass::after {
+  display: none;
+}
+
+.dp-true-app-pass h1,
+.dp-true-app-pass p,
+.dp-true-app-pass .dp-true-app-kicker,
+.dp-true-app-pass-state {
+  position: relative;
+  z-index: 2;
+}
+
+.dp-true-app-pass h1 {
+  max-width: 390px;
+}
+
+.dp-true-app-pass p:not(.dp-true-app-kicker) {
+  max-width: 330px;
+}
+
+@media (max-width: 560px) {
+  .dp-true-app-pass {
+    background:
+      linear-gradient(90deg, rgba(248, 255, 255, 0.94) 0%, rgba(248, 255, 255, 0.88) 48%, rgba(255, 255, 255, 0.12) 100%),
+      url("/traveler/traveler-home-hero-banner.png") center center / cover no-repeat;
+  }
+
+  .dp-true-app-pass h1 {
+    max-width: 320px;
+  }
+
+  .dp-true-app-pass p:not(.dp-true-app-kicker) {
+    max-width: 285px;
+  }
+}

@@ -26,7 +26,7 @@ const navItems = [
     key: "pass",
     icon: "\u25C7",
     label: "Pass",
-    href: "/traveler/home",
+    href: "/traveler/pass",
   },
   {
     key: "profile",
@@ -87,5 +87,3 @@ export function TravelerBottomNav({ activeTab = "home" }: TravelerBottomNavProps
     </nav>
   );
 }
-
-

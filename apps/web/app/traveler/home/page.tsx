@@ -1,18 +1,18 @@
 ﻿import { TravelerAppShell } from "../_components/TravelerAppShell";
 
 const actionIcons = {
-  trip: "\u2708",
+  trip: "\u27A4",
   pass: "\u25C7",
 } as const;
 
-const guardrailIcons = ["\u265C", "\u25A3", "\u2317", "\u25CC"] as const;
+const guardrailIcons = ["\u26E8", "\u25A3", "\u2723", "\u25CC"] as const;
 
 const quickActions = [
   {
     icon: actionIcons.trip,
     label: "Trip request",
     title: "Start request",
-    copy: "Send trip details for review.",
+    copy: "Send trip details for backend review.",
     href: "/traveler/trip-booking",
     primary: true,
   },
@@ -21,7 +21,7 @@ const quickActions = [
     label: "Official pass",
     title: "Pass state",
     copy: "Session-verified traveler access.",
-    href: "/traveler/home",
+    href: "/traveler/pass",
     primary: false,
   },
 ];
@@ -57,14 +57,17 @@ export default function TravelerHomePage() {
       <section className="dp-true-app-pass">
         <div>
           <p className="dp-true-app-kicker">Traveler home</p>
-          <h1>Your Dinagat journey</h1>
+                    <h1>
+            <span>Your Dinagat</span>
+            <span>journey</span>
+          </h1>
           <p>
             Manage pass readiness and trip requests from your verified traveler app.
           </p>
         </div>
 
         <div className="dp-true-app-pass-state">
-          <span />
+          <span aria-hidden="true">{"\u2713"}</span>
           <p>Session verified</p>
         </div>
       </section>
@@ -72,7 +75,9 @@ export default function TravelerHomePage() {
       <section className="dp-true-app-actions" aria-label="Primary actions">
         {quickActions.map((item) => (
           <article className="dp-true-app-action-card" key={item.title}>
-            <div className="dp-true-app-action-icon">{item.icon}</div>
+            <div className="dp-true-app-action-icon" aria-hidden="true">
+              {item.icon}
+            </div>
             <p className="dp-true-app-kicker">{item.label}</p>
             <h2>{item.title}</h2>
             <p>{item.copy}</p>
@@ -106,7 +111,11 @@ export default function TravelerHomePage() {
         </div>
       </section>
 
-      <section className="dp-true-app-card">
+      <section className="dp-true-app-card dp-true-app-protected-card">
+        <div className="dp-true-app-protected-icon" aria-hidden="true">
+          {"\u26E8"}
+        </div>
+
         <div className="dp-true-app-section-head">
           <p className="dp-true-app-kicker">Protected actions</p>
           <h2>Official actions stay protected.</h2>
@@ -127,4 +136,3 @@ export default function TravelerHomePage() {
     </TravelerAppShell>
   );
 }
-
