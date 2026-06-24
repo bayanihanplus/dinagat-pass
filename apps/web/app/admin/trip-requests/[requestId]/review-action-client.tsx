@@ -257,6 +257,21 @@ const styles: Record<string, CSSProperties> = {
     fontSize: "14px",
     fontWeight: 800,
   },
+  lockLabel: {
+    display: "block",
+    color: "#647887",
+    fontSize: "11px",
+    fontWeight: 900,
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+  },
+  lockValue: {
+    display: "block",
+    marginTop: "6px",
+    color: "#0b3552",
+    fontSize: "14px",
+    fontWeight: 900,
+  },
   actionsGrid: {
     marginTop: "18px",
     display: "grid",
@@ -541,14 +556,40 @@ export function AdminTripRequestReviewClient({
 
             <div style={{ marginTop: "16px", display: "grid", gap: "12px" }}>
               {[
-                `Payment remains locked: ${String(currentSafetyLocks.paymentUnlocked)}`,
-                `Voucher is not issued: ${String(currentSafetyLocks.voucherIssued)}`,
-                `QR is not generated: ${String(currentSafetyLocks.qrGenerated)}`,
-                `Operator is not assigned: ${String(currentSafetyLocks.operatorAssigned)}`,
-                `Fake confirmation allowed: ${String(currentSafetyLocks.fakeConfirmationAllowed)}`,
+                {
+                  label: "Payment gate",
+                  value: currentSafetyLocks.paymentUnlocked
+                    ? "Unexpected unlocked state"
+                    : "Locked by backend",
+                },
+                {
+                  label: "Voucher issuance",
+                  value: currentSafetyLocks.voucherIssued
+                    ? "Unexpected issued state"
+                    : "Not issued",
+                },
+                {
+                  label: "Official QR readiness",
+                  value: currentSafetyLocks.qrGenerated
+                    ? "Unexpected generated state"
+                    : "Not generated",
+                },
+                {
+                  label: "Operator assignment",
+                  value: currentSafetyLocks.operatorAssigned
+                    ? "Unexpected assigned state"
+                    : "Not assigned",
+                },
+                {
+                  label: "Fake confirmation",
+                  value: currentSafetyLocks.fakeConfirmationAllowed
+                    ? "Unsafe state detected"
+                    : "Blocked",
+                },
               ].map((item) => (
-                <div key={item} style={styles.lockItem}>
-                  {item}
+                <div key={item.label} style={styles.lockItem}>
+                  <span style={styles.lockLabel}>{item.label}</span>
+                  <strong style={styles.lockValue}>{item.value}</strong>
                 </div>
               ))}
             </div>
