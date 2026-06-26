@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const DEFAULT_BACKEND_URL = 'http://localhost:4000';
 
@@ -33,15 +33,32 @@ export async function POST(request: NextRequest) {
 
   const backendUrl = `${getBackendBaseUrl()}/trip-bookings/intent`;
 
-  const response = await fetch(backendUrl, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      cookie: getForwardedCookie(request),
-    },
-    body: JSON.stringify(payload),
-    cache: 'no-store',
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(backendUrl, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: getForwardedCookie(request),
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        ok: false,
+        authority: 'backend-required',
+        backendUnavailable: true,
+        frontendOwnsBookingAuthority: false,
+        frontendOwnsPaymentAuthority: false,
+        frontendOwnsOperatorSelection: false,
+        message: 'Backend booking service is unavailable. Trip booking intent was not created.',
+      },
+      { status: 502 },
+    );
+  }
 
   const text = await response.text();
 
