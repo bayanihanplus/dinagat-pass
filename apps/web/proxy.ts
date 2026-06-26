@@ -123,7 +123,7 @@ const ADMIN_ROUTE_ALLOWED_ROLES = ["ADMIN", "SUPER_ADMIN"] as const satisfies re
 
 // DINAGAT PASS ADMIN ROUTE PROTECTION
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isProtectedAdminRoute = isProtectedAdminPath(pathname);
 
