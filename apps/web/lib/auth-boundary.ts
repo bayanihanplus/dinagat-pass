@@ -54,9 +54,14 @@ export function getProtectedRouteRoleRule(pathname: string): ProtectedRouteRoleR
 }
 
 export function isProtectedTravelerPath(pathname: string): boolean {
-  return protectedTravelerRoutes.some((route) => {
-    return pathname === route || pathname.startsWith(`${route}/`);
-  });
+  return (
+    pathname === "/traveler/home" ||
+    pathname === "/traveler/pass" ||
+    pathname === "/traveler/trip-booking" ||
+    pathname === "/traveler/requests" ||
+    pathname.startsWith("/traveler/requests/") ||
+    pathname === "/traveler/settings"
+  );
 }
 
 export function getReturningLoginPath(): string {
