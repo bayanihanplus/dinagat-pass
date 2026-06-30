@@ -20,6 +20,15 @@ import { TripBookingIntentService } from '../services/trip-booking-intent.servic
 export class AdminTripBookingReviewController {
   constructor(private readonly tripBookingIntentService: TripBookingIntentService) {}
 
+  @Get('intents')
+  async listReviewQueue(
+    @Req() request: RequestWithAuthContext
+  ) {
+    this.requireAdminActor(request);
+
+    return this.tripBookingIntentService.listForAdmin();
+  }
+
   @Get('intent/:bookingCode/detail')
   async getReviewDetail(
     @Param('bookingCode') bookingCode: string,

@@ -40,6 +40,37 @@ export type AdminTripBookingSafetyLocksContract = {
   fakeConfirmationAllowed: false;
 };
 
+export type AdminTripBookingListLatestReviewContract = {
+  action: TripBookingReviewAction;
+  resultingStatus: TripBookingIntentStatus;
+  reviewedByRole: string;
+  reviewedAt: string;
+};
+
+export type AdminTripBookingListItemContract = {
+  bookingCode: string;
+  title: string;
+  destinationName: string | null;
+  serviceDate: string | null;
+  paxCount: number;
+  productType: TripBookingIntentContract['productType'];
+  sourceChannel: TripBookingIntentContract['sourceChannel'];
+  pricingMode: TripBookingIntentContract['pricingMode'];
+  status: TripBookingIntentContract['status'];
+  latestReview: AdminTripBookingListLatestReviewContract | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminTripBookingListResponseContract = {
+  success: true;
+  authority: 'backend';
+  frontendOwnsAuthority: false;
+  total: number;
+  requests: AdminTripBookingListItemContract[];
+  safetyLocks: AdminTripBookingSafetyLocksContract;
+};
+
 export type AdminTripBookingReviewDetailContract = {
   success: true;
   authority: 'backend';

@@ -23,6 +23,7 @@ import {
   AdminTripBookingReviewActionRequestContract,
   AdminTripBookingReviewActionResponseContract,
   AdminTripBookingReviewDetailContract,
+  AdminTripBookingListResponseContract,
   AdminTripBookingReviewActionContract,
   TripBookingReviewAction,
   TRIP_BOOKING_REVIEW_ACTIONS
@@ -164,6 +165,68 @@ export class TripBookingIntentService {
       authority: 'backend',
       frontendOwnsAuthority: false,
       booking: this.toContract(booking),
+      safetyLocks: this.getTravelerSafetyLocks(),
+    };
+  }
+
+  async listForAdmin(): Promise<AdminTripBookingListResponseContract> {
+    const bookings = await this.prisma.tripBookingIntent.findMany({
+      take: 100,
+      orderBy: [
+        {
+          updatedAt: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        },
+      ],
+    });
+
+    const requests = bookings.map((booking) => {
+      const metadata =
+        booking.metadata &&
+        typeof booking.metadata === 'object' &&
+        !Array.isArray(booking.metadata)
+          ? (booking.metadata as Record<string, unknown>)
+          : {};
+
+      const latestReviewState =
+        this.toAdminReviewActionOrNull(
+          metadata.adminReviewState,
+        );
+
+      return {
+        bookingCode: booking.bookingCode,
+        title: booking.title,
+        destinationName: booking.destinationName,
+        serviceDate: booking.serviceDate?.toISOString() ?? null,
+        paxCount: booking.paxCount,
+        productType: booking.productType,
+        sourceChannel: booking.sourceChannel,
+        pricingMode: booking.pricingMode,
+        status: booking.status,
+        latestReview: latestReviewState
+          ? {
+              action: latestReviewState.action,
+              resultingStatus:
+                latestReviewState.resultingStatus,
+              reviewedByRole:
+                latestReviewState.reviewedByRole,
+              reviewedAt:
+                latestReviewState.reviewedAt,
+            }
+          : null,
+        createdAt: booking.createdAt.toISOString(),
+        updatedAt: booking.updatedAt.toISOString(),
+      };
+    });
+
+    return {
+      success: true,
+      authority: 'backend',
+      frontendOwnsAuthority: false,
+      total: requests.length,
+      requests,
       safetyLocks: this.getTravelerSafetyLocks(),
     };
   }
