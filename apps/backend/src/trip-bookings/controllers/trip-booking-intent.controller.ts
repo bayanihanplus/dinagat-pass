@@ -1,37 +1,70 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
 
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+
+import { RequestWithAuthContext } from '../../auth/contracts/auth-context';
+import { RequireRoles } from '../../auth/decorators/roles.decorator';
 import { AuthRequiredGuard } from '../../auth/guards/auth-required.guard';
-import { CreateTripBookingIntentRequestContract } from '../contracts/trip-booking-intent.contract';
+import { RoleGuard } from '../../auth/guards/role.guard';
+import { CreateTravelerTripRequestContract } from '../contracts/trip-booking-intent.contract';
 import { TripBookingIntentService } from '../services/trip-booking-intent.service';
 
-type AuthenticatedRequest = {
-  auth?: {
-    userId?: string;
-  };
-};
-
 @Controller('trip-bookings')
+@UseGuards(AuthRequiredGuard, RoleGuard)
+@RequireRoles(UserRole.TRAVELER)
 export class TripBookingIntentController {
   constructor(private readonly tripBookingIntentService: TripBookingIntentService) {}
 
   @Post('intent')
-  @UseGuards(AuthRequiredGuard)
-  async createIntent(
-    @Body() body: CreateTripBookingIntentRequestContract,
-    @Req() request: AuthenticatedRequest,
+  async createTravelerIntent(
+    @Body() body: CreateTravelerTripRequestContract,
+    @Req() request: RequestWithAuthContext,
   ) {
-    const userId = request.auth?.userId;
+    const userId = this.requireAuthenticatedUserId(request);
 
-    if (userId) {
-      return this.tripBookingIntentService.createIntent(body, { userId });
-    }
+    return this.tripBookingIntentService.createTravelerIntent(body, {
+      userId,
+    });
+  }
 
-    return this.tripBookingIntentService.createIntent(body, {});
+  @Get('intents/mine')
+  async listMyIntents(@Req() request: RequestWithAuthContext) {
+    const userId = this.requireAuthenticatedUserId(request);
+
+    return this.tripBookingIntentService.listForTraveler(userId);
   }
 
   @Get('intent/:bookingCode')
-  @UseGuards(AuthRequiredGuard)
-  async getIntentByBookingCode(@Param('bookingCode') bookingCode: string) {
-    return this.tripBookingIntentService.getByBookingCode(bookingCode);
+  async getMyIntentByBookingCode(
+    @Param('bookingCode') bookingCode: string,
+    @Req() request: RequestWithAuthContext,
+  ) {
+    const userId = this.requireAuthenticatedUserId(request);
+
+    return this.tripBookingIntentService.getForTravelerByBookingCode(
+      bookingCode,
+      userId,
+    );
+  }
+
+  private requireAuthenticatedUserId(request: RequestWithAuthContext): string {
+    const userId = request.auth?.userId?.trim();
+
+    if (!userId) {
+      throw new UnauthorizedException(
+        'Backend traveler auth context is required.',
+      );
+    }
+
+    return userId;
   }
 }

@@ -4,24 +4,39 @@ import {
   TripBookingProductType,
   TripBookingSourceChannel,
 } from '@prisma/client';
+export const TRAVELER_TRIP_REQUEST_TYPES = [
+  'ISLAND_HOPPING',
+  'LAND_ROUTE',
+  'LOCAL_TRANSFER',
+  'CUSTOM',
+] as const;
 
-export type CreateTripBookingIntentRequestContract = {
-  productType: TripBookingProductType;
-  sourceChannel?: TripBookingSourceChannel;
-  pricingMode: TripBookingPricingMode;
-  title: string;
-  destinationName?: string;
-  routeCode?: string;
-  serviceDate?: string;
-  paxCount?: number;
-  currencyCode?: string;
-  estimatedAmount?: number;
-  operatorRegistryId?: string;
-  commercialTermsId?: string;
-  operatorTermsAcceptanceId?: string;
-  travelerRequestJson?: Record<string, unknown>;
-  sourceAttributionJson?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
+export type TravelerTripRequestType =
+  (typeof TRAVELER_TRIP_REQUEST_TYPES)[number];
+
+export type CreateTravelerTripRequestContract = {
+  destination?: string;
+  tripType?: TravelerTripRequestType;
+  travelDate?: string;
+  partySize?: number;
+  notes?: string;
+
+  productType?: never;
+  sourceChannel?: never;
+  pricingMode?: never;
+  title?: never;
+  destinationName?: never;
+  routeCode?: never;
+  serviceDate?: never;
+  paxCount?: never;
+  currencyCode?: never;
+  estimatedAmount?: never;
+  operatorRegistryId?: never;
+  commercialTermsId?: never;
+  operatorTermsAcceptanceId?: never;
+  travelerRequestJson?: never;
+  sourceAttributionJson?: never;
+  metadata?: never;
   requestedByUserId?: never;
   backendOwned?: never;
   frontendMayOnlyRequestIntent?: never;
@@ -58,8 +73,18 @@ export type TripBookingIntentContract = {
   updatedAt: string;
 };
 
-export type TripBookingIntentCreateResponseContract = {
+export type TripBookingSafetyLocksContract = {
+  paymentUnlocked: false;
+  qrGenerated: false;
+  voucherIssued: false;
+  operatorAssigned: false;
+  fakeConfirmationAllowed: false;
+};
+
+export type TravelerTripBookingIntentCreateResponseContract = {
   created: true;
+  authority: 'backend';
+  frontendOwnsAuthority: false;
   backendOwned: true;
   frontendOwnsBookingAuthority: false;
   frontendOwnsOperatorSelection: false;
@@ -67,6 +92,20 @@ export type TripBookingIntentCreateResponseContract = {
   requestedByUserIdSource: 'backend-auth-context';
   fakeBookingAllowed: false;
   flatOperatorListAllowed: false;
-  operatorTermsAcceptanceRequiredWhenOperatorProvided: true;
   booking: TripBookingIntentContract;
+  safetyLocks: TripBookingSafetyLocksContract;
+};
+
+export type TravelerTripBookingIntentListResponseContract = {
+  authority: 'backend';
+  frontendOwnsAuthority: false;
+  requests: TripBookingIntentContract[];
+  safetyLocks: TripBookingSafetyLocksContract;
+};
+
+export type TravelerTripBookingIntentDetailResponseContract = {
+  authority: 'backend';
+  frontendOwnsAuthority: false;
+  booking: TripBookingIntentContract;
+  safetyLocks: TripBookingSafetyLocksContract;
 };

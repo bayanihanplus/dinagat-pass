@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException
+} from "@nestjs/common";
 import { UserRole } from "@prisma/client";
 import { RequestWithAuthContext } from "../contracts";
 import { AuthService } from "../services";
@@ -26,13 +31,23 @@ export class AuthRequiredGuard implements CanActivate {
     const token = this.extractSessionToken(request);
 
     if (!token) {
-      return false;
+      throw new UnauthorizedException(
+        "Backend authentication is required."
+      );
     }
 
     const resolved = await this.authService.resolveSession(token);
 
-    if (!resolved.valid || !resolved.userId || !resolved.email || !resolved.role || !resolved.sessionId) {
-      return false;
+    if (
+      !resolved.valid ||
+      !resolved.userId ||
+      !resolved.email ||
+      !resolved.role ||
+      !resolved.sessionId
+    ) {
+      throw new UnauthorizedException(
+        "Backend authentication is required."
+      );
     }
 
     request.auth = {

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
-  TermsAcceptanceStatus,
   TripBookingIntent,
   TripBookingIntentStatus,
   TripBookingPricingMode,
@@ -11,9 +10,14 @@ import {
 
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  CreateTripBookingIntentRequestContract,
+  CreateTravelerTripRequestContract,
+  TravelerTripBookingIntentCreateResponseContract,
+  TravelerTripBookingIntentDetailResponseContract,
+  TravelerTripBookingIntentListResponseContract,
+  TravelerTripRequestType,
+  TRAVELER_TRIP_REQUEST_TYPES,
   TripBookingIntentContract,
-  TripBookingIntentCreateResponseContract,
+  TripBookingSafetyLocksContract,
 } from '../contracts/trip-booking-intent.contract';
 import {
   AdminTripBookingReviewActionRequestContract,
@@ -32,111 +36,72 @@ type AuthenticatedRequestContext = {
 export class TripBookingIntentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createIntent(
-    body: CreateTripBookingIntentRequestContract,
+  async createTravelerIntent(
+    body: CreateTravelerTripRequestContract,
     auth: AuthenticatedRequestContext,
-  ): Promise<TripBookingIntentCreateResponseContract> {
-    const requestedByUserId = auth.userId?.trim();
-
-    if (!requestedByUserId) {
-      throw new BadRequestException('Authenticated user context is required.');
-    }
-
-    const title = body.title?.trim();
-    if (!title) {
-      throw new BadRequestException('Trip booking title is required.');
-    }
-
-    const productType = this.requireEnumValue(
-      TripBookingProductType,
-      body.productType,
-      'productType',
-    ) as TripBookingProductType;
-
-    const pricingMode = this.requireEnumValue(
-      TripBookingPricingMode,
-      body.pricingMode,
-      'pricingMode',
-    ) as TripBookingPricingMode;
-
-    const sourceChannel = this.optionalEnumValue(
-      TripBookingSourceChannel,
-      body.sourceChannel,
-      TripBookingSourceChannel.DIRECT_TRAVELER,
-      'sourceChannel',
-    ) as TripBookingSourceChannel;
-
-    const paxCount = Number.isInteger(body.paxCount) && Number(body.paxCount) > 0
-      ? Number(body.paxCount)
-      : 1;
-
-    let operatorRegistryId: string | null = body.operatorRegistryId?.trim() || null;
-    let commercialTermsId: string | null = body.commercialTermsId?.trim() || null;
-    let operatorTermsAcceptanceId: string | null =
-      body.operatorTermsAcceptanceId?.trim() || null;
-
-    if (operatorRegistryId) {
-      if (!operatorTermsAcceptanceId) {
-        throw new BadRequestException(
-          'operatorTermsAcceptanceId is required when operatorRegistryId is provided.',
-        );
-      }
-
-      const acceptance = await this.prisma.operatorTermsAcceptance.findUnique({
-        where: { id: operatorTermsAcceptanceId },
-      });
-
-      if (!acceptance) {
-        throw new NotFoundException('Operator terms acceptance was not found.');
-      }
-
-      if (acceptance.status !== TermsAcceptanceStatus.ACTIVE) {
-        throw new BadRequestException('Operator terms acceptance must be ACTIVE.');
-      }
-
-      if (acceptance.operatorRegistryId !== operatorRegistryId) {
-        throw new BadRequestException(
-          'Operator terms acceptance does not belong to the provided operator registry.',
-        );
-      }
-
-      commercialTermsId = acceptance.commercialTermsId;
-      operatorRegistryId = acceptance.operatorRegistryId;
-      operatorTermsAcceptanceId = acceptance.id;
-    }
+  ): Promise<TravelerTripBookingIntentCreateResponseContract> {
+    const requestBody = this.requireTravelerRequestBody(body);
+    const requestedByUserId = this.requireAuthenticatedUserId(auth.userId);
+    const destinationName = this.requireTravelerDestination(
+      requestBody.destination,
+    );
+    const tripType = this.requireTravelerTripType(requestBody.tripType);
+    const serviceDate = this.requireTravelerServiceDate(
+      requestBody.travelDate,
+    );
+    const paxCount = this.requireTravelerPaxCount(requestBody.partySize);
+    const notes = this.normalizeTravelerNotes(requestBody.notes);
+    const productType = this.mapTravelerTripTypeToProductType(tripType);
+    const title = this.buildTravelerRequestTitle(
+      tripType,
+      destinationName,
+    );
 
     const booking = await this.prisma.tripBookingIntent.create({
       data: {
         bookingCode: await this.generateBookingCode(),
         productType,
-        sourceChannel,
-        pricingMode,
+        sourceChannel: TripBookingSourceChannel.DIRECT_TRAVELER,
+        pricingMode: TripBookingPricingMode.REQUEST_TO_CONFIRM,
         status: TripBookingIntentStatus.REQUESTED,
         requestedByUserId,
-        operatorRegistryId,
-        commercialTermsId,
-        operatorTermsAcceptanceId,
+        operatorRegistryId: null,
+        commercialTermsId: null,
+        operatorTermsAcceptanceId: null,
         title,
-        destinationName: body.destinationName?.trim() || null,
-        routeCode: body.routeCode?.trim() || null,
-        serviceDate: body.serviceDate ? new Date(body.serviceDate) : null,
+        destinationName,
+        routeCode: null,
+        serviceDate,
         paxCount,
-        currencyCode: body.currencyCode?.trim() || 'PHP',
-        estimatedAmount: body.estimatedAmount ?? null,
-        travelerRequestJson: this.toJsonInput(body.travelerRequestJson),
-        sourceAttributionJson: this.toJsonInput(body.sourceAttributionJson),
-        metadata: this.toJsonInput(body.metadata),
+        currencyCode: 'PHP',
+        estimatedAmount: null,
+        travelerRequestJson: this.toJsonInput({
+          schemaVersion: 1,
+          tripType,
+          notes,
+        }),
+        sourceAttributionJson: this.toJsonInput({
+          sourceChannel: TripBookingSourceChannel.DIRECT_TRAVELER,
+          ownershipSource: 'backend-auth-context',
+        }),
+        metadata: this.toJsonInput({
+          travelerContractVersion: 1,
+          safetyLocks: this.getTravelerSafetyLocks(),
+        }),
         backendOwned: true,
         frontendMayOnlyRequestIntent: true,
         fakeBookingAllowed: false,
         flatOperatorListAllowed: false,
         commercialTermsAcceptanceRequired: true,
         governedOperatorFulfillmentRequired: true,
+        requestedAt: new Date(),
       },
     });
 
     return {
       created: true,
+      authority: 'backend',
+      frontendOwnsAuthority: false,
       backendOwned: true,
       frontendOwnsBookingAuthority: false,
       frontendOwnsOperatorSelection: false,
@@ -144,27 +109,63 @@ export class TripBookingIntentService {
       requestedByUserIdSource: 'backend-auth-context',
       fakeBookingAllowed: false,
       flatOperatorListAllowed: false,
-      operatorTermsAcceptanceRequiredWhenOperatorProvided: true,
       booking: this.toContract(booking),
+      safetyLocks: this.getTravelerSafetyLocks(),
     };
   }
 
-  async getByBookingCode(bookingCode: string): Promise<TripBookingIntentContract> {
+  async listForTraveler(
+    userId: string,
+  ): Promise<TravelerTripBookingIntentListResponseContract> {
+    const normalizedUserId = this.requireAuthenticatedUserId(userId);
+
+    const bookings = await this.prisma.tripBookingIntent.findMany({
+      where: {
+        requestedByUserId: normalizedUserId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      authority: 'backend',
+      frontendOwnsAuthority: false,
+      requests: bookings.map((booking) => this.toContract(booking)),
+      safetyLocks: this.getTravelerSafetyLocks(),
+    };
+  }
+
+  async getForTravelerByBookingCode(
+    bookingCode: string,
+    userId: string,
+  ): Promise<TravelerTripBookingIntentDetailResponseContract> {
     const normalizedBookingCode = bookingCode?.trim();
+    const normalizedUserId = this.requireAuthenticatedUserId(userId);
 
     if (!normalizedBookingCode) {
       throw new BadRequestException('bookingCode is required.');
     }
 
-    const booking = await this.prisma.tripBookingIntent.findUnique({
-      where: { bookingCode: normalizedBookingCode },
+    const booking = await this.prisma.tripBookingIntent.findFirst({
+      where: {
+        bookingCode: normalizedBookingCode,
+        requestedByUserId: normalizedUserId,
+      },
     });
 
     if (!booking) {
-      throw new NotFoundException('Trip booking intent was not found.');
+      throw new NotFoundException(
+        'Trip booking intent was not found.',
+      );
     }
 
-    return this.toContract(booking);
+    return {
+      authority: 'backend',
+      frontendOwnsAuthority: false,
+      booking: this.toContract(booking),
+      safetyLocks: this.getTravelerSafetyLocks(),
+    };
   }
 
   async getAdminReviewDetail(bookingCode: string): Promise<AdminTripBookingReviewDetailContract> {
@@ -322,6 +323,204 @@ export class TripBookingIntentService {
         operatorAssigned: false,
         fakeConfirmationAllowed: false
       }
+    };
+  }
+
+  private requireTravelerRequestBody(
+    value: unknown,
+  ): Record<string, unknown> {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      throw new BadRequestException(
+        'Traveler trip request body must be a JSON object.',
+      );
+    }
+
+    const requestBody = value as Record<string, unknown>;
+    const allowedFields = new Set<string>([
+      'destination',
+      'tripType',
+      'travelDate',
+      'partySize',
+      'notes',
+    ]);
+
+    const unsupportedFields = Object.keys(requestBody)
+      .filter((field) => !allowedFields.has(field))
+      .sort();
+
+    if (unsupportedFields.length > 0) {
+      throw new BadRequestException(
+        'Unsupported traveler request fields: ' +
+          unsupportedFields.join(', ') +
+          '.',
+      );
+    }
+
+    return requestBody;
+  }
+
+  private requireAuthenticatedUserId(value: unknown): string {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new BadRequestException(
+        'Authenticated user context is required.',
+      );
+    }
+
+    return value.trim();
+  }
+
+  private requireTravelerDestination(value: unknown): string {
+    if (typeof value !== 'string') {
+      throw new BadRequestException('destination is required.');
+    }
+
+    const destination = value.trim();
+
+    if (destination.length < 2 || destination.length > 160) {
+      throw new BadRequestException(
+        'destination must contain between 2 and 160 characters.',
+      );
+    }
+
+    return destination;
+  }
+
+  private requireTravelerTripType(
+    value: unknown,
+  ): TravelerTripRequestType {
+    if (
+      typeof value !== 'string' ||
+      !TRAVELER_TRIP_REQUEST_TYPES.includes(
+        value as TravelerTripRequestType,
+      )
+    ) {
+      throw new BadRequestException('tripType is invalid.');
+    }
+
+    return value as TravelerTripRequestType;
+  }
+
+  private requireTravelerServiceDate(value: unknown): Date {
+    if (
+      typeof value !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(value)
+    ) {
+      throw new BadRequestException(
+        'travelDate must use YYYY-MM-DD format.',
+      );
+    }
+
+    const serviceDate = new Date(value + 'T00:00:00.000Z');
+
+    if (
+      Number.isNaN(serviceDate.getTime()) ||
+      serviceDate.toISOString().slice(0, 10) !== value
+    ) {
+      throw new BadRequestException('travelDate is invalid.');
+    }
+
+    const now = new Date();
+    const philippineNow = new Date(
+      now.getTime() + 8 * 60 * 60 * 1000,
+    );
+
+    const minimumDate = new Date(
+      Date.UTC(
+        philippineNow.getUTCFullYear(),
+        philippineNow.getUTCMonth(),
+        philippineNow.getUTCDate(),
+      ),
+    );
+
+    const maximumDate = new Date(minimumDate);
+    maximumDate.setUTCMonth(maximumDate.getUTCMonth() + 24);
+
+    if (serviceDate < minimumDate || serviceDate > maximumDate) {
+      throw new BadRequestException(
+        'travelDate must be within the next 24 months.',
+      );
+    }
+
+    return serviceDate;
+  }
+
+  private requireTravelerPaxCount(value: unknown): number {
+    if (
+      typeof value !== 'number' ||
+      !Number.isInteger(value) ||
+      value < 1 ||
+      value > 30
+    ) {
+      throw new BadRequestException(
+        'partySize must be an integer between 1 and 30.',
+      );
+    }
+
+    return value;
+  }
+
+  private normalizeTravelerNotes(value: unknown): string | null {
+    if (value === undefined || value === null || value === '') {
+      return null;
+    }
+
+    if (typeof value !== 'string') {
+      throw new BadRequestException('notes must be text.');
+    }
+
+    const notes = value.trim();
+
+    if (!notes) {
+      return null;
+    }
+
+    if (notes.length > 2000) {
+      throw new BadRequestException(
+        'notes must not exceed 2000 characters.',
+      );
+    }
+
+    return notes;
+  }
+
+  private mapTravelerTripTypeToProductType(
+    tripType: TravelerTripRequestType,
+  ): TripBookingProductType {
+    if (tripType === 'LOCAL_TRANSFER') {
+      return TripBookingProductType.TRANSPORT;
+    }
+
+    if (
+      tripType === 'ISLAND_HOPPING' ||
+      tripType === 'LAND_ROUTE'
+    ) {
+      return TripBookingProductType.TOUR;
+    }
+
+    return TripBookingProductType.OTHER;
+  }
+
+  private buildTravelerRequestTitle(
+    tripType: TravelerTripRequestType,
+    destinationName: string,
+  ): string {
+    const labels: Record<TravelerTripRequestType, string> = {
+      ISLAND_HOPPING: 'Island hopping',
+      LAND_ROUTE: 'Dinagat land route',
+      LOCAL_TRANSFER: 'Local transfer',
+      CUSTOM: 'Custom Dinagat',
+    };
+
+    return labels[tripType] + ' request to ' + destinationName;
+  }
+
+  private getTravelerSafetyLocks(): TripBookingSafetyLocksContract {
+    return {
+      paymentUnlocked: false,
+      qrGenerated: false,
+      voucherIssued: false,
+      operatorAssigned: false,
+      fakeConfirmationAllowed: false,
     };
   }
 

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { AuthRequiredGuard } from '../../auth';
 import { RequestWithAuthContext } from '../../auth/contracts/auth-context';
@@ -42,7 +52,7 @@ export class AdminTripBookingReviewController {
     }
 
     if (actor.role !== UserRole.ADMIN && actor.role !== UserRole.SUPER_ADMIN) {
-      throw new UnauthorizedException('Backend admin role is required.');
+      throw new ForbiddenException('Backend admin role is required.');
     }
 
     return {
