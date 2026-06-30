@@ -14,6 +14,8 @@ import {
   TravelerTripBookingIntentCreateResponseContract,
   TravelerTripBookingIntentDetailResponseContract,
   TravelerTripBookingIntentListResponseContract,
+  TravelerTripBookingRequestContract,
+  TravelerRequestStatusProjectionContract,
   TravelerTripRequestType,
   TRAVELER_TRIP_REQUEST_TYPES,
   TripBookingIntentContract,
@@ -124,16 +126,27 @@ export class TripBookingIntentService {
       where: {
         requestedByUserId: normalizedUserId,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      take: 100,
+      orderBy: [
+        {
+          updatedAt: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        },
+      ],
     });
 
+    const requests = bookings.map((booking) =>
+      this.toTravelerRequestContract(booking),
+    );
+
     return {
+      success: true,
       authority: 'backend',
       frontendOwnsAuthority: false,
-      requests: bookings.map((booking) => this.toContract(booking)),
-      safetyLocks: this.getTravelerSafetyLocks(),
+      total: requests.length,
+      requests,
     };
   }
 
@@ -162,10 +175,10 @@ export class TripBookingIntentService {
     }
 
     return {
+      success: true,
       authority: 'backend',
       frontendOwnsAuthority: false,
-      booking: this.toContract(booking),
-      safetyLocks: this.getTravelerSafetyLocks(),
+      booking: this.toTravelerRequestContract(booking),
     };
   }
 
@@ -575,6 +588,149 @@ export class TripBookingIntentService {
     };
 
     return labels[tripType] + ' request to ' + destinationName;
+  }
+
+  private toTravelerRequestContract(
+    booking: TripBookingIntent,
+  ): TravelerTripBookingRequestContract {
+    const metadata =
+      booking.metadata &&
+      typeof booking.metadata === 'object' &&
+      !Array.isArray(booking.metadata)
+        ? (booking.metadata as Record<string, unknown>)
+        : {};
+
+    const reviewState = this.toAdminReviewActionOrNull(
+      metadata.adminReviewState,
+    );
+
+    return {
+      bookingCode: booking.bookingCode,
+      title: booking.title,
+      destinationName: booking.destinationName,
+      serviceDate: booking.serviceDate?.toISOString() ?? null,
+      paxCount: booking.paxCount,
+      travelerStatus: this.toTravelerStatusProjection(
+        booking,
+        reviewState,
+      ),
+      createdAt: booking.createdAt.toISOString(),
+      updatedAt: booking.updatedAt.toISOString(),
+    };
+  }
+
+  private toTravelerStatusProjection(
+    booking: TripBookingIntent,
+    reviewState: AdminTripBookingReviewActionContract | null,
+  ): TravelerRequestStatusProjectionContract {
+    const validatedReview =
+      reviewState &&
+      reviewState.resultingStatus === booking.status
+        ? reviewState
+        : null;
+
+    if (validatedReview?.action === 'request-info') {
+      return {
+        code: 'MORE_INFORMATION_NEEDED',
+        label: 'More information needed',
+        guidance:
+          'Dinagat Pass needs additional details before review can continue. Follow the official request instructions when they appear.',
+        updatedAt: validatedReview.reviewedAt,
+      };
+    }
+
+    if (validatedReview?.action === 'hold-review') {
+      return {
+        code: 'UNDER_REVIEW',
+        label: 'Under review',
+        guidance:
+          'Your request remains under review. No action is required unless Dinagat Pass contacts you.',
+        updatedAt: validatedReview.reviewedAt,
+      };
+    }
+
+    if (validatedReview?.action === 'approve-for-next-step') {
+      return {
+        code: 'APPROVED_FOR_NEXT_STEP',
+        label: 'Approved for next step',
+        guidance:
+          'Your request passed the current review step. Continue only through official next steps shown by Dinagat Pass.',
+        updatedAt: validatedReview.reviewedAt,
+      };
+    }
+
+    if (validatedReview?.action === 'reject') {
+      return {
+        code: 'NOT_APPROVED',
+        label: 'Not approved',
+        guidance:
+          'This request will not advance in its current form. You may start a new request when ready.',
+        updatedAt: validatedReview.reviewedAt,
+      };
+    }
+
+    const updatedAt = booking.updatedAt.toISOString();
+
+    switch (booking.status) {
+      case TripBookingIntentStatus.DRAFT:
+      case TripBookingIntentStatus.REQUESTED:
+        return {
+          code: 'REQUEST_RECEIVED',
+          label: 'Request received',
+          guidance:
+            'Your request was received and is waiting for backend review. It is not yet a confirmed booking.',
+          updatedAt,
+        };
+
+      case TripBookingIntentStatus.PENDING_OPERATOR_MATCH:
+        return {
+          code: 'UNDER_REVIEW',
+          label: 'Under review',
+          guidance:
+            'Dinagat Pass is continuing the protected review of your request.',
+          updatedAt,
+        };
+
+      case TripBookingIntentStatus.PENDING_CONFIRMATION:
+      case TripBookingIntentStatus.READY_FOR_PAYMENT:
+      case TripBookingIntentStatus.PAYMENT_PENDING:
+      case TripBookingIntentStatus.CONFIRMED:
+        return {
+          code: 'APPROVED_FOR_NEXT_STEP',
+          label: 'Approved for next step',
+          guidance:
+            'Your request has advanced. Continue only through official next steps shown by Dinagat Pass.',
+          updatedAt,
+        };
+
+      case TripBookingIntentStatus.REJECTED:
+        return {
+          code: 'NOT_APPROVED',
+          label: 'Not approved',
+          guidance:
+            'This request will not advance in its current form. You may start a new request when ready.',
+          updatedAt,
+        };
+
+      case TripBookingIntentStatus.CANCELLED:
+      case TripBookingIntentStatus.EXPIRED:
+        return {
+          code: 'CLOSED',
+          label: 'Request closed',
+          guidance:
+            'This request is no longer active. Start a new request when you are ready.',
+          updatedAt,
+        };
+
+      default:
+        return {
+          code: 'UNDER_REVIEW',
+          label: 'Under review',
+          guidance:
+            'Dinagat Pass is reviewing the current request state.',
+          updatedAt,
+        };
+    }
   }
 
   private getTravelerSafetyLocks(): TripBookingSafetyLocksContract {

@@ -23,12 +23,21 @@ export const DINAGAT_USER_ROLES = [
 
 export type DinagatUserRole = (typeof DINAGAT_USER_ROLES)[number];
 
-export const protectedTravelerRoutes = ["/traveler/home"] as const;
+export const protectedTravelerRoutes = [
+  "/traveler/home",
+  "/traveler/requests",
+] as const;
 
 export const protectedRouteRoleRules = [
   {
     route: "/traveler/home",
     allowedRoles: ["TRAVELER", "SUPER_ADMIN"],
+    surface: "traveler",
+    unauthorizedRedirectPath: "/unauthorized?reason=role-required"
+  },
+  {
+    route: "/traveler/requests",
+    allowedRoles: ["TRAVELER"],
     surface: "traveler",
     unauthorizedRedirectPath: "/unauthorized?reason=role-required"
   }

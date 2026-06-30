@@ -96,16 +96,47 @@ export type TravelerTripBookingIntentCreateResponseContract = {
   safetyLocks: TripBookingSafetyLocksContract;
 };
 
+export const TRAVELER_REQUEST_STATUS_CODES = [
+  'REQUEST_RECEIVED',
+  'MORE_INFORMATION_NEEDED',
+  'UNDER_REVIEW',
+  'APPROVED_FOR_NEXT_STEP',
+  'NOT_APPROVED',
+  'CLOSED',
+] as const;
+
+export type TravelerRequestStatusCode =
+  (typeof TRAVELER_REQUEST_STATUS_CODES)[number];
+
+export type TravelerRequestStatusProjectionContract = {
+  code: TravelerRequestStatusCode;
+  label: string;
+  guidance: string;
+  updatedAt: string;
+};
+
+export type TravelerTripBookingRequestContract = {
+  bookingCode: string;
+  title: string;
+  destinationName: string | null;
+  serviceDate: string | null;
+  paxCount: number;
+  travelerStatus: TravelerRequestStatusProjectionContract;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type TravelerTripBookingIntentListResponseContract = {
+  success: true;
   authority: 'backend';
   frontendOwnsAuthority: false;
-  requests: TripBookingIntentContract[];
-  safetyLocks: TripBookingSafetyLocksContract;
+  total: number;
+  requests: TravelerTripBookingRequestContract[];
 };
 
 export type TravelerTripBookingIntentDetailResponseContract = {
+  success: true;
   authority: 'backend';
   frontendOwnsAuthority: false;
-  booking: TripBookingIntentContract;
-  safetyLocks: TripBookingSafetyLocksContract;
+  booking: TravelerTripBookingRequestContract;
 };
